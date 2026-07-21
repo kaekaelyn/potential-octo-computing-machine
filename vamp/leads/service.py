@@ -9,6 +9,7 @@ import sqlite3
 from vamp import dedupe
 from vamp.capture.parser import ParsedLead
 from vamp.filters import run_hard_filters
+from vamp.vault.matching import sync_requirements
 
 # Structural rule: unpaid never sorts into Paying. Only confirmed pay
 # kinds count — tips/unknown/unpaid all land on Stepping-stones.
@@ -86,7 +87,9 @@ def create_lead(
         ),
     )
     conn.commit()
-    return cur.lastrowid, True, None
+    lead_id = cur.lastrowid
+    sync_requirements(conn, lead_id, combined_text)
+    return lead_id, True, None
 
 
 def restore_lead(conn: sqlite3.Connection, lead_id: int) -> None:
@@ -148,3 +151,4 @@ def update_lead(conn: sqlite3.Connection, lead_id: int, fields: dict) -> None:
         ),
     )
     conn.commit()
+    sync_requirements(conn, lead_id, combined_text)

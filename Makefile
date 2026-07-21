@@ -1,4 +1,4 @@
-.PHONY: dev test lint venv
+.PHONY: dev test lint venv backup
 
 VENV := .venv
 PYTHON := $(VENV)/bin/python
@@ -20,3 +20,6 @@ lint: venv
 	$(PYTHON) -m ruff format --check .
 	$(PYTHON) -m ruff check .
 	$(PYTHON) scripts/check_pure_python_deps.py
+
+backup: venv
+	$(PYTHON) -m vamp.cli backup

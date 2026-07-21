@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Unlock report — Vamp{% endblock %}
+{% block content %}
+  <h2>Unlock report</h2>
+  <p class="hint">Which single missing asset would unlock the most open opportunities?</p>
+
+  {% if report.entries %}
+    <p class="tagline">
+      One <strong>{{ report.entries[0].label }}</strong> unlocks
+      {{ report.entries[0].lead_count }} of your {{ report.total_open }} open opportunities.
+    </p>
+    <ul class="lead-list">
+      {% for entry in report.entries %}
+        <li class="lead-card">
+          <strong>{{ entry.label }}</strong>
+          <span class="chip chip-missing">unlocks {{ entry.lead_count }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">
+      {% if report.total_open %}
+        Everything trackable is already READY across your {{ report.total_open }} open opportunities.
+      {% else %}
+        No open leads have a parsed requirements checklist yet.
+      {% endif %}
+    </p>
+  {% endif %}
+
+  <p><a href="{{ url_for('vault.list_assets') }}">&larr; back to vault</a></p>
+{% endblock %}

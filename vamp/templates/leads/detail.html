@@ -3,6 +3,40 @@
 {% block content %}
   <h2>{{ lead['title'] }}</h2>
 
+  {% if status.checklist %}
+    <section>
+      <h3>Requirements
+        {% if status.has_requirements %}
+          {% if status.ready %}
+            <span class="chip chip-ready">READY</span>
+          {% else %}
+            <span class="chip chip-missing">missing something</span>
+          {% endif %}
+        {% endif %}
+      </h3>
+      <ul class="checklist">
+        {% for item in status.checklist %}
+          <li class="checklist-item">
+            {% if item.trackable %}
+              <span class="chip {{ 'chip-ready' if item.satisfied else 'chip-missing' }}">
+                {{ 'READY' if item.satisfied else 'missing' }}
+              </span>
+            {% else %}
+              <span class="chip">action item</span>
+            {% endif %}
+            <strong>{{ item.label }}</strong>
+            {% if item.detail %}<span class="notes">"{{ item.detail }}"</span>{% endif %}
+            {% if item.trackable and item.satisfied %}
+              <a href="{{ url_for('vault.list_assets') }}">view in vault</a>
+            {% elif item.trackable %}
+              <a href="{{ url_for('vault.list_assets') }}">add to vault</a>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
   {% if lead['needs_review'] %}
     <p class="hint">Fetch didn't work (or this came straight from shared text) — finish by hand below.</p>
   {% endif %}

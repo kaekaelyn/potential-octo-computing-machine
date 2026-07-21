@@ -16,5 +16,8 @@ Runs entirely on an Android phone under [Termux](https://termux.dev/) —
 the phone is both server and client. No cloud, no accounts, no telemetry,
 no auto-sending anything, ever.
 
-Status: M0 (skeleton) and M1 (capture + leads inbox) complete. Daily-usable
-from here — share a post to Vamp, work the inbox, run the patrol checklist.
+Status: M0 (skeleton), M1 (capture + leads inbox), M2 (feeds + watchers),
+and M3 (requirements + vault + kit builder) complete. Daily-usable from
+M1 on — share a post to Vamp, work the inbox, run the patrol checklist;
+M3 adds READY/Missing badges, the unlock report, the kit builder, and
+EPK export on top.

@@ -28,10 +28,8 @@ curl -s http://127.0.0.1:8485/healthz
 # {"status": "ok"}
 
 sqlite3 ~/.vamp/vamp.db ".tables"
-# assets          invoices        playbooks       referrals       scores
-# events          kit_tasks       profile         reminders       scene_events
-# gigs            leads           prospects       requirements    sources
-# patrol_items    people          touches         schema_migrations
+# every table from PLAN.md §10, plus M3's repertoire_items and
+# schema_migrations/source_state (migration bookkeeping)
 ```
 
 Run the test suite and linter:
@@ -231,5 +229,105 @@ lead — same as pasting or sharing one by hand.
 ```sh
 make test    # 116+ tests: adapters (fixture-only, no live HTTP), runner
              # isolation, scheduler reconciliation, catch-up-on-open, /sources
+make lint
+```
+
+## M3 — Requirements + vault + kit builder
+
+Start the app:
+
+```sh
+make dev
+```
+
+### Requirements checklist on a captured lead
+
+Open `http://127.0.0.1:8485/capture` and paste in a posting with a real
+ask, e.g.:
+
+```
+First Baptist Church of Edmond is seeking a part-time pianist for Sunday
+morning worship and Wednesday rehearsals. Please send a resume and three
+references to music@fbcedmond.example. $150 per Sunday, paid monthly.
+```
+
+The new lead's detail page shows a **Requirements** section decomposed
+from the text — here, `CV/resume` and `references` — each with the
+matched sentence as its detail and a `missing` chip (nothing's in the
+vault yet). Requirements re-parse automatically on every finish-by-hand
+edit, and on every fetched/adapter lead the same way captured ones do.
+
+### Asset vault + READY/Missing badges
+
+Go to `http://127.0.0.1:8485/vault`. Add an asset — kind "CV", a name, and
+check "Ready to send" — either paste a URL or upload a file (stored
+under `~/.vamp/assets/<kind>/`). Back on the lead's detail page and in
+the inbox list, the `CV/resume` line (and the card's badge) flips to
+**READY** for that kind; toggling an asset back to "not ready" or
+deleting it immediately un-satisfies any requirement it was covering.
+Add a `references` asset too and the lead card shows the green **READY**
+chip; leads with at least one still-missing trackable requirement show
+`Missing: <label>, <label>` instead. Requirements with no vault
+equivalent — in-person audition, cover letter, a heuristic "other"
+catch-all — show as **action item** chips on the checklist and never
+block READY, since nothing in the vault could satisfy them anyway.
+
+### Unlock report
+
+`http://127.0.0.1:8485/vault/unlock` ranks every currently-missing asset
+kind by how many open leads (inbox/interested/preparing/applied) it would
+unlock, e.g. *"One live video unlocks 3 of your 5 open opportunities."*
+Mark a matching asset ready and reload — that entry drops off the list.
+
+### Repertoire list builder
+
+`http://127.0.0.1:8485/vault/repertoire` — add songs with an artist and
+one or more occasion tags (wedding/cocktail/worship/jazz/originals/
+improv). Every add/edit/delete recompiles the vault's single
+`repertoire_list` asset (grouped by occasion, written to
+`~/.vamp/assets/repertoire_list/repertoire.txt`) and marks it ready the
+moment the list isn't empty — so a `repertoire list` requirement on any
+lead picks it up automatically.
+
+### Kit builder
+
+`http://127.0.0.1:8485/kit` — the ten-step guided checklist seeded from
+PLAN.md §5 (bios → headshots → three live videos → repertoire list → CV
+→ tech rider → rate card → EPK export), in order, with a running
+`N / 10 done` count. Each step links back to the vault; a step whose
+asset kind already has a ready vault entry is flagged so you can see
+what's actually left versus just unchecked.
+
+### EPK export
+
+`http://127.0.0.1:8485/vault/epk` shows which of the three "core" pieces
+(bio, headshot, at least one live video) are ready, then **Download EPK**
+streams (and saves to `~/.vamp/epk/epk.html`) a single self-contained
+HTML file: local image/text assets are inlined (headshot as a base64
+data URI, bio/repertoire text inline), linked video/audio/rate-card URLs
+become plain links. Open the downloaded file directly in a browser with
+no server running — it's fully self-contained, ready to attach, print to
+PDF, or host anywhere Kaelyn chooses (Vamp never hosts it itself).
+
+### Backup
+
+```sh
+make backup   # python -m vamp.cli backup
+```
+
+Tarballs the SQLite DB (+ WAL/SHM sidecars) and the `assets`/`epk`
+directories. On desktop (or Termux before `termux-setup-storage` has
+been run) it lands in `~/.vamp/backups/`; once Termux shared storage is
+set up, it goes to `~/storage/shared/Vamp/backups/` instead — point
+Syncthing or a cloud-drive app at that folder from there, Vamp stays
+offline either way. Override the destination with `VAMP_BACKUP_DIR=...`
+in `~/.vamp/env`.
+
+### Tests
+
+```sh
+make test    # 168+ tests: requirements parser (17-fixture corpus),
+             # vault CRUD + matching, unlock report, kit builder,
+             # repertoire builder, EPK export, backup/CLI
 make lint
 ```
