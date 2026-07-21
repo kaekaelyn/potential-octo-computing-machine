@@ -140,9 +140,10 @@ Android kills background processes. Mitigations, in order:
    process fires once on wake, not 40 times.
 
 Install story: install Termux + Termux:API + Termux:Boot (F-Droid), then
-`pkg install git python make termux-api termux-services && git clone … &&
+`pkg install git python make termux-api termux-services && git clone
+https://github.com/kaekaelyn/potential-octo-computing-machine vamp &&
 cd vamp && ./install.sh` → prints `http://127.0.0.1:8485` → open in
-Chrome → "Add to home screen."
+Chrome → "Add to home screen." (docs/PHONE.md is the copy-paste version.)
 
 ---
 

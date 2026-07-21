@@ -39,10 +39,21 @@ real device.
 pkg update -y
 pkg install -y git python make
 termux-setup-storage   # only needed later, for `vamp backup`
-git clone <repo-url> vamp
+git clone https://github.com/kaekaelyn/potential-octo-computing-machine vamp
 cd vamp
 ./install.sh
 ```
+
+(`pkg install -y git python make` can pull in a chunk of Termux's build
+toolchain — `clang`/`llvm`/`lld`/`pkg-config` — as dependencies the first
+time you install `python` on a fresh Termux. That's expected, not a
+failure; let it finish.)
+
+(Cloning under a different fork or URL? Swap the URL above, but don't
+paste a bare `<placeholder>` — angle brackets are shell redirection
+syntax, so `git clone <repo-url> vamp` fails immediately with
+`bash: repo-url: No such file or directory` instead of prompting you to
+fill anything in.)
 
 ## What `install.sh` does on Termux
 

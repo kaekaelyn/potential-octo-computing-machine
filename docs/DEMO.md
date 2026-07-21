@@ -52,7 +52,7 @@ Termux (see `docs/PHONE.md` for full walkthrough and troubleshooting):
 
 ```sh
 pkg install -y git python make
-git clone <repo-url> vamp && cd vamp
+git clone https://github.com/kaekaelyn/potential-octo-computing-machine vamp && cd vamp
 ./install.sh
 sv status vamp
 curl -s http://127.0.0.1:8485/healthz
