@@ -292,3 +292,84 @@ header h1 a {
 code {
   word-break: break-all;
 }
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+}
+
+.filter-row .chip {
+  text-decoration: none;
+}
+
+.pipeline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.pipeline-actions form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.pipeline-actions button,
+.pipeline-actions .danger,
+button.danger {
+  align-self: flex-start;
+  font: inherit;
+  padding: 0.4rem 1rem;
+  border-radius: 0.35rem;
+  cursor: pointer;
+}
+
+button.danger {
+  background: transparent;
+  color: #b3392c;
+  border: 1px solid #b3392c;
+}
+
+.pipeline-actions select,
+.lead-form select {
+  font: inherit;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--muted);
+  border-radius: 0.35rem;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.playbook {
+  line-height: 1.5;
+}
+
+.playbook h1,
+.playbook h2,
+.playbook h3 {
+  color: var(--accent);
+}
+
+.playbook blockquote {
+  margin: 0.75rem 0;
+  padding: 0.25rem 0 0.25rem 0.9rem;
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+}
+
+.lead-form fieldset {
+  border: 1px solid var(--muted);
+  border-radius: 0.5rem;
+}
+
+.lead-form fieldset label {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+}

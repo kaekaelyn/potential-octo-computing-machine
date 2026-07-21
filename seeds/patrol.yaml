@@ -1,0 +1,37 @@
+# seeds/patrol.yaml — the daily patrol checklist (PLAN.md §3 Tier B): groups
+# and pages worth a five-minute manual skim for gig chatter. Vamp never
+# scrapes these (CLAUDE.md hard rule) — this is a ToS-compliant human habit.
+#
+# URLs below were seen in the M4 research session; where no URL was confirmed
+# the item is a reminder to find and paste the right group by hand (Vamp won't
+# invent a link). Notes say what to look for.
+
+- name: Oklahoma Open Mics, Jam Sessions, and Music Meet-ups
+  url: https://www.facebook.com/groups/okopenmic
+  notes: Public FB group aggregating OKC-area open mics and jams — skim for new nights and last-minute fills.
+- name: OkSessions — OKC live-music calendar
+  url: https://oksessions.com/calendar/
+  notes: Independent OKC live-music calendar. Not Facebook — a fast daily skim for who's booking live music.
+- name: Open Mic Oklahoma City (directory)
+  url: https://www.openmicoklahomacity.com/
+  notes: Maintained list of metro open mics with nights/hosts — the source of truth for confirming an open-mic night.
+- name: OKC Improv
+  url: https://www.facebook.com/okcimprov/
+  notes: Watch for musical-improv nights and calls for a house accompanist (free-improv-arbitrage).
+- name: OKC musicians' groups (find & add)
+  notes: >-
+    Search Facebook for active OKC/metro musician groups (e.g. gigs-wanted,
+    "musicians of Oklahoma" style groups), verify each, and paste the real URL
+    here. Look for sub calls and last-minute gig posts.
+- name: Church worship-leader / music-director network (find & add)
+  notes: >-
+    Find the local worship-leader Facebook group or Slack, confirm it, and add
+    the URL. This is where "need a sub this Sunday" posts appear (sub-list).
+- name: Wedding planners & venue coordinators (find & add)
+  notes: >-
+    Track the OKC-metro wedding-vendor / planner groups where couples ask for
+    ceremony musicians. Add verified URLs (planner-play).
+- name: Retirement activity-directors network (find & add)
+  notes: >-
+    Activity/life-enrichment directors sometimes coordinate entertainment in
+    regional groups. Find and add the real one (retirement-circuit).

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Import prospects — Vamp{% endblock %}
+{% block content %}
+  <p class="meta"><a href="{{ url_for('prospects.board') }}">← Prospects</a></p>
+  <h2>Import from OpenStreetMap</h2>
+  <p class="hint">Bulk-discover OKC-metro places by category from OpenStreetMap's Overpass API.
+     Everything imports as <strong>unverified</strong> — OSM is crowd-sourced, so confirm each
+     place and its contact details before pitching. Vamp never invents a contact detail.</p>
+
+  <form method="post" action="{{ url_for('prospects.run_import') }}" class="lead-form">
+    <fieldset>
+      <legend>Categories</legend>
+      {% for c in categories %}
+        <label><input type="checkbox" name="categories" value="{{ c }}"> {{ c }}</label>
+      {% endfor %}
+    </fieldset>
+    <button type="submit">Import selected</button>
+  </form>
+  <p class="hint">This makes a live request to overpass-api.de. On the phone, run it on Wi-Fi.</p>
+{% endblock %}

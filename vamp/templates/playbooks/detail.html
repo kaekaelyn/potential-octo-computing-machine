@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ playbook['title'] }} — Vamp{% endblock %}
+{% block content %}
+  <p class="meta"><a href="{{ url_for('playbooks.list_playbooks') }}">← Playbooks</a></p>
+  {% if months %}<p class="meta">Seasonal: {{ months | join(', ') }}</p>{% endif %}
+
+  <article class="playbook">
+    {{ body_html }}
+  </article>
+
+  {% if prospects %}
+    <h3>Prospects for this playbook ({{ prospects | length }})</h3>
+    <ul class="lead-list">
+      {% for p in prospects %}
+        <li class="lead-card{% if not p['verified'] %} needs-review{% endif %}">
+          <a href="{{ url_for('prospects.detail', prospect_id=p['id']) }}">{{ p['name'] }}</a>
+          <div class="lead-meta">
+            {% if p['category'] %}<span>{{ p['category'] }}</span>{% endif %}
+            {% if p['area'] %}<span>{{ p['area'] }}</span>{% endif %}
+            {% if not p['verified'] %}<span class="chip chip-excluded">unverified</span>{% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if scene_events %}
+    <h3>Scene events for this playbook ({{ scene_events | length }})</h3>
+    <ul class="lead-list">
+      {% for e in scene_events %}
+        <li class="lead-card">
+          <strong>{{ e['name'] }}</strong>
+          <div class="lead-meta">
+            {% if e['kind'] %}<span class="chip chip-missing">{{ e['kind'] }}</span>{% endif %}
+            {% if e['venue'] %}<span>{{ e['venue'] }}</span>{% endif %}
+            {% if e['area'] %}<span>{{ e['area'] }}</span>{% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}

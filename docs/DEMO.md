@@ -331,3 +331,129 @@ make test    # 168+ tests: requirements parser (17-fixture corpus),
              # repertoire builder, EPK export, backup/CLI
 make lint
 ```
+
+## M4 — Prospects engine + OKC seed data
+
+Start the app:
+
+```sh
+make dev
+```
+
+The seed datasets in `seeds/` are imported idempotently on first run (same
+startup flow as the default sources and kit tasks), so the app comes up with
+a populated prospect database, scene calendar, patrol list, rate ranges, and
+the seven playbooks already loaded. Re-import by hand anytime:
+
+```sh
+python -m vamp.cli seed
+# prospects: 0 loaded/updated   (already present — insert-if-absent)
+# scene_events: 0 loaded/updated
+# ...
+# playbooks: 7 loaded/updated   (content refreshes from the repo by slug)
+```
+
+### The prospect board
+
+Open `http://127.0.0.1:8485/prospects`. The board lists the seeded OKC-metro
+prospects across every PLAN.md §6 category — piano bars, hotels, steakhouses,
+wineries/breweries, coffee shops, listening rooms, churches, retirement
+communities, hospitals, wedding venues/planners, funeral homes, galleries,
+museums, country clubs, theaters, university dance departments, improv/comedy
+theaters, and yoga/sound-bath studios. Filter by **stage** or **category** with
+the chips. Unverified rows (crowd-sourced or unconfirmed) carry a **confirm
+before pitching** chip; verified rows were checked against a public source
+during the build. No contact field is ever invented — unconfirmed phones/emails
+are simply left blank.
+
+### Pipeline demo, end-to-end on a real prospect
+
+Open a verified prospect — e.g. **University of Oklahoma School of Dance**
+(the flagship free-improv-arbitrage prospect: it staffs live class
+accompanists). Walk it through the pipeline:
+
+1. **Advance** through `identified → researched → pitch_drafted`. At
+   `pitch_drafted` it appears in the weekly Outreach Sprint as "ready to send".
+2. Set the stage to **Contacted**, then **Log a touch** (channel: email,
+   summary: "sent pitch about class accompaniment"). Logging the touch arms the
+   cadence engine: two follow-up reminders appear immediately, due **+7 days**
+   and **+21 days**, and `next_touch_at` points at the sooner one.
+3. Log another touch — the old follow-up pair is superseded and a fresh +7/+21
+   pair is scheduled from the new date (the clock restarts when she re-engages).
+4. Set the stage to **Booked**, then **Recurring** — a terminal state cancels
+   the outstanding follow-ups so the sprint stops nagging about a closed loop.
+
+The per-prospect **cooldown** chip appears on any prospect touched within its
+cooldown window (default 14 days, overridable per prospect) so nothing gets
+pestered too often.
+
+### Weekly Outreach Sprint
+
+`http://127.0.0.1:8485/prospects/sprint` aggregates the week into one view and
+one headline — *"This week: N pitches drafted and ready, M follow-ups due. Open
+Vamp."* — split into pitches ready to send, follow-ups that have come due, and
+researched prospects still waiting on a draft. Kaelyn reviews, personalizes, and
+sends each one herself; Vamp never sends anything.
+
+### Overpass importer (bulk discovery, verified:false)
+
+`http://127.0.0.1:8485/prospects/import` — pick one or more categories and
+import OKC-metro places in bulk from OpenStreetMap's Overpass API. Everything
+imports **unverified** (`source = overpass:<category>`), filling only the fields
+OSM actually carries, with a "confirm details before pitching" note. From the
+CLI:
+
+```sh
+python -m vamp.cli import-overpass "coffee shop" "yoga studio"
+# coffee shop: 12 imported (18 seen) — ok
+```
+
+(This is the only M4 feature that touches the network; run it on Wi-Fi. The
+importer never raises on a bad response — one category's failure is isolated,
+same discipline as the M2 source runner.)
+
+### Playbooks
+
+`http://127.0.0.1:8485/playbooks` lists the seven strategy playbooks; each
+renders its markdown body (a minimal, dependency-free, HTML-escaping renderer)
+plus the seeded prospects and scene events tagged to execute it. Seasonal
+playbooks (Sub List, Planner Play, Seasonal Campaigns) show their active months
+and are flagged when the current month is one of them (the M7 activation
+reminders read the same `active_months`).
+
+### Scene calendar, patrol, and rate ranges
+
+The seeded scene calendar (recurring events, festivals + application windows,
+and the competition deadline calendar) rides the `scene_events` table by `kind`;
+the patrol list seeds `/patrol` with real OKC music-scene groups/pages plus
+"find & add" prompts (URLs are only filled where confirmed). Rate ranges load
+into `rate_ranges` for the M6 rate card, each with its source and a
+`verified` flag — national benchmarks are honestly flagged for localization.
+
+Inspect any of them directly:
+
+```sh
+sqlite3 ~/.vamp/vamp.db "SELECT name, category, verified FROM prospects LIMIT 10;"
+sqlite3 ~/.vamp/vamp.db "SELECT gig_type, low, high, unit, verified FROM rate_ranges;"
+```
+
+### No-fabrication spot-check
+
+The acceptance criterion is that a random spot-check of the seed data finds zero
+fabrications. `tests/test_seed_loader.py` encodes the automatable half — every
+prospect has a name/category/angle, `verified` is a real boolean, every website
+is a real URL, and every `playbook` slug on a prospect or scene event resolves
+to a real playbook. For the manual half, pick ten random prospects and confirm
+each against its `website` (or a quick search); unverified rows carry empty
+contacts by design, so there is nothing to fabricate.
+
+### Tests
+
+```sh
+make test    # 205+ tests: pipeline states + transitions, cadence engine
+             # (+7/+21 scheduling, cooldowns, sprint aggregation), Overpass
+             # importer (fixture-only, failure isolation, verified:false),
+             # seed loader idempotency + data-integrity guard, playbook
+             # markdown renderer (incl. HTML-escaping), prospect routes
+make lint
+```

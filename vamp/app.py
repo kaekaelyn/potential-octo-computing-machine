@@ -8,6 +8,7 @@ from flask import Flask, render_template, send_from_directory
 
 from . import db as vamp_db
 from .config import Config, load_config
+from .seeds.loader import ensure_seed_data
 from .sources.catchup import install_catchup_middleware
 from .sources.runner import ensure_default_sources
 from .vault.kit import ensure_default_kit_tasks
@@ -25,6 +26,7 @@ def create_app(config: Config | None = None, *, catchup_sync: bool = False) -> F
     try:
         ensure_default_sources(conn)
         ensure_default_kit_tasks(conn)
+        ensure_seed_data(conn)
     finally:
         conn.close()
 
@@ -32,6 +34,8 @@ def create_app(config: Config | None = None, *, catchup_sync: bool = False) -> F
     from .kit.routes import bp as kit_bp
     from .leads.routes import bp as leads_bp
     from .patrol.routes import bp as patrol_bp
+    from .playbooks.routes import bp as playbooks_bp
+    from .prospects.routes import bp as prospects_bp
     from .sources.routes import bp as sources_bp
     from .vault.routes import bp as vault_bp
 
@@ -39,6 +43,8 @@ def create_app(config: Config | None = None, *, catchup_sync: bool = False) -> F
     app.register_blueprint(kit_bp)
     app.register_blueprint(leads_bp)
     app.register_blueprint(patrol_bp)
+    app.register_blueprint(playbooks_bp)
+    app.register_blueprint(prospects_bp)
     app.register_blueprint(sources_bp)
     app.register_blueprint(vault_bp)
 

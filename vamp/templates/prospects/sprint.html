@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Outreach Sprint — Vamp{% endblock %}
+{% block content %}
+  <h2>Weekly Outreach Sprint</h2>
+  <p class="tagline">{{ headline }}</p>
+  <p class="hint">Everything that's ready to send or due to follow up, in one place. You review,
+     personalize, and send each one yourself.</p>
+
+  <h3>Pitches drafted &amp; ready ({{ sprint.summary.pitches_ready }})</h3>
+  <ul class="lead-list">
+    {% for p in sprint.pitches_ready %}
+      <li class="lead-card">
+        <a href="{{ url_for('prospects.detail', prospect_id=p['id']) }}">{{ p['name'] }}</a>
+        <div class="lead-meta">
+          {% if p['category'] %}<span>{{ p['category'] }}</span>{% endif %}
+          {% if p['area'] %}<span>{{ p['area'] }}</span>{% endif %}
+        </div>
+        {% if p['angle'] %}<p class="notes"><em>Angle:</em> {{ p['angle'] }}</p>{% endif %}
+      </li>
+    {% else %}
+      <li class="empty">No pitches waiting to be sent.</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Follow-ups due ({{ sprint.summary.follow_ups_due }})</h3>
+  <ul class="lead-list">
+    {% for f in sprint.follow_ups_due %}
+      <li class="lead-card">
+        <a href="{{ url_for('prospects.detail', prospect_id=f['prospect_id']) }}">{{ f['name'] }}</a>
+        <div class="lead-meta">
+          <span class="chip chip-review">due {{ f['due_at'] }} UTC</span>
+          {% if f['category'] %}<span>{{ f['category'] }}</span>{% endif %}
+        </div>
+        <p class="notes">{{ f['message'] }}</p>
+      </li>
+    {% else %}
+      <li class="empty">No follow-ups due.</li>
+    {% endfor %}
+  </ul>
+
+  {% if sprint.to_draft %}
+    <h3>Researched, waiting on a pitch ({{ sprint.summary.to_draft }})</h3>
+    <ul class="lead-list">
+      {% for p in sprint.to_draft %}
+        <li class="lead-card">
+          <a href="{{ url_for('prospects.detail', prospect_id=p['id']) }}">{{ p['name'] }}</a>
+          <div class="lead-meta">
+            {% if p['category'] %}<span>{{ p['category'] }}</span>{% endif %}
+            {% if p['area'] %}<span>{{ p['area'] }}</span>{% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}
