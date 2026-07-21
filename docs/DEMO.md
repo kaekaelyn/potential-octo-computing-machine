@@ -482,9 +482,21 @@ yet"; tap **Check now** for a real (small) round trip through the CLI —
   comes with the Termux fix steps right on the page:
   ```
   pkg install -y nodejs-lts
-  npm install -g @anthropic-ai/claude-code
+  npm config set allow-scripts=@anthropic-ai/claude-code --location=user
+  npm install -g @anthropic-ai/claude-code@2.1.112
   claude login
   ```
+  Two Termux-only gotchas baked into those steps:
+  - `allow-scripts`: npm 11+ blocks a package's install scripts by
+    default, so without it `npm install -g` silently skips fetching
+    whatever a postinstall step needs.
+  - The version pin: `claude-code` 2.1.113+ ships a native **glibc**
+    binary; Android's kernel refuses to exec glibc binaries at all
+    (Termux is bionic libc), so newer versions fail at runtime with
+    "claude native binary not installed" no matter what. 2.1.112 was
+    the last pure-JS release. See
+    [anthropics/claude-code#50270](https://github.com/anthropics/claude-code/issues/50270)
+    — if that's landed an Android/bionic-native build, drop the pin.
 
 Nothing here fails loudly — every route below degrades to the `none` provider
 (heuristics/templates) automatically and tells you which provider actually

@@ -26,9 +26,22 @@ STATUS_LABELS: dict[str, str] = {
 
 # CLAUDE.md / PLAN.md §9: Node via `pkg install nodejs-lts`, then the CLI via
 # npm, then a one-time login against the household subscription.
+#
+# Two separate Termux-only gotchas baked into these steps:
+#   - npm 11+ blocks install scripts by default (a supply-chain-security
+#     change) — without allow-scripts, `npm install -g` silently skips a
+#     package's postinstall step.
+#   - claude-code itself switched to a native *glibc* binary starting at
+#     2.1.113; Android's kernel refuses to exec glibc binaries at all
+#     (Termux is bionic libc), so newer versions fail at runtime with
+#     "claude native binary not installed" no matter what — pin the last
+#     JS-based release instead. See anthropics/claude-code#50270; if
+#     that issue reports upstream Android/bionic support landing, drop
+#     the version pin below.
 TERMUX_FIX_STEPS: tuple[str, ...] = (
     "pkg install -y nodejs-lts",
-    "npm install -g @anthropic-ai/claude-code",
+    "npm config set allow-scripts=@anthropic-ai/claude-code --location=user",
+    "npm install -g @anthropic-ai/claude-code@2.1.112",
     "claude login   # opens a browser link once; uses your household subscription",
 )
 

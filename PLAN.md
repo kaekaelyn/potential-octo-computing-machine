@@ -376,7 +376,7 @@ Same contract as Wingman, adapted to Termux:
 
 | Provider | Mechanism | Notes |
 | --- | --- | --- |
-| `claude` | subprocess `claude -p --output-format json` | Node via `pkg install nodejs-lts`, `npm i -g @anthropic-ai/claude-code`, `claude login` once with the household subscription. Known to run on Termux/ARM64; treated as *fragile by policy* |
+| `claude` | subprocess `claude -p --output-format json` | Node via `pkg install nodejs-lts`, `npm i -g @anthropic-ai/claude-code@2.1.112` (pinned — 2.1.113+ ships a native glibc binary that Android's bionic-libc kernel refuses to exec at all; see [anthropics/claude-code#50270](https://github.com/anthropics/claude-code/issues/50270)), `claude login` once with the household subscription. Treated as *fragile by policy* — confirmed to actually break on Termux at the current published version, which is exactly why every AI feature has a tested `none` fallback |
 | `none` | heuristics + templates | always present, always tested |
 
 (`codex` CLI support is stretch — its Termux story is worse; the
