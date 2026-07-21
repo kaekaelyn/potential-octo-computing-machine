@@ -403,7 +403,9 @@ AI features, priority order:
 ## 10. Data model (SQLite, one file)
 
 ```
-sources(id, kind, name, config_json, enabled, last_fetch_at, last_error)
+sources(id, kind, name, config_json, enabled, last_fetch_at, last_error,
+        interval_seconds, last_success_at)  -- interval/last_success added M2, migration 0003
+source_state(source_id, content_hash, updated_at)  -- adapter poll state (M2); page-watcher's diff hash
 leads(id, source_id, kind,           -- gig|job|competition|open_mic|showcase|other
       dedupe_hash,                   -- fuzzy (org, title, event_date) key
       url_hash,                      -- canonical-URL key (M1, migration 0002)

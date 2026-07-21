@@ -1,0 +1,30 @@
+{
+  "count": 2,
+  "results": [
+    {
+      "id": "1000000001",
+      "title": "Hotel Lobby Pianist",
+      "description": "The Skirvin Hilton is seeking a pianist for our lobby lounge, Thursday-Saturday evenings.",
+      "created": "2026-07-10T14:02:00Z",
+      "redirect_url": "https://www.adzuna.com/details/1000000001",
+      "company": {"display_name": "Skirvin Hilton Hotel"},
+      "location": {"area": ["US", "Oklahoma", "Oklahoma City"], "display_name": "Oklahoma City, OK"},
+      "salary_min": 32000.0,
+      "salary_max": 38000.0,
+      "salary_is_predicted": "0",
+      "category": {"label": "Hospitality & Catering Jobs", "tag": "hospitality-catering-jobs"},
+      "contract_time": "part_time"
+    },
+    {
+      "id": "1000000002",
+      "title": "Church Accompanist",
+      "description": "First Christian Church OKC seeks an accompanist for Sunday services and Wednesday rehearsal.",
+      "created": "2026-07-12T09:15:00Z",
+      "redirect_url": "https://www.adzuna.com/details/1000000002",
+      "company": {"display_name": "First Christian Church"},
+      "location": {"display_name": "Oklahoma City, OK"},
+      "category": {"label": "Charity & Voluntary Work Jobs", "tag": "charity-voluntary-jobs"},
+      "contract_time": "part_time"
+    }
+  ]
+}

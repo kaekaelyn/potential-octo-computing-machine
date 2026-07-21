@@ -1,0 +1,35 @@
+{
+  "LanguageCode": "EN",
+  "SearchResult": {
+    "SearchResultCount": 1,
+    "SearchResultCountAll": 1,
+    "SearchResultItems": [
+      {
+        "MatchedObjectId": "700000001",
+        "MatchedObjectDescriptor": {
+          "PositionID": "ARMY-26-700000001",
+          "PositionTitle": "Musician (Keyboard)",
+          "PositionURI": "https://www.usajobs.gov/job/700000001",
+          "OrganizationName": "U.S. Army",
+          "DepartmentName": "Department of the Army",
+          "PositionLocationDisplay": "Fort Sill, Oklahoma",
+          "PublicationStartDate": "2026-07-01",
+          "ApplicationCloseDate": "2026-08-01",
+          "QualificationSummary": "Auditioned position, U.S. Army Field Band.",
+          "UserArea": {
+            "Details": {
+              "JobSummary": "The 77th Army Band is seeking a keyboardist for ceremonial and concert performances."
+            }
+          },
+          "PositionRemuneration": [
+            {
+              "MinimumRange": "45000.00",
+              "MaximumRange": "55000.00",
+              "RateIntervalCode": "Per Year"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
