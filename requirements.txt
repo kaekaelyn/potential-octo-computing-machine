@@ -23,6 +23,15 @@ PyYAML==6.0.1
 sgmllib3k==1.0.0
 soupsieve==2.9
 typing_extensions==4.16.0
+# tzdata: not imported directly anywhere in vamp/ — stdlib zoneinfo (used by
+# tzlocal/APScheduler to resolve the phone's local timezone at startup)
+# falls back to this package's bundled IANA database when the OS doesn't
+# ship its own under /usr/share/zoneinfo. Termux doesn't, so without this
+# pin the app crashes on Termux with "ZoneInfoNotFoundError: no time zone
+# found with key America/..." even though it starts fine on desktop Linux
+# (which almost always has system tzdata). Do not remove even if nothing
+# `import`s it.
+tzdata==2026.3
 tzlocal==5.4.4
 waitress==3.0.2
 Werkzeug==3.1.8

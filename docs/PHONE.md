@@ -196,6 +196,18 @@ portability rule that core behavior always has a non-Termux fallback.
   correct)** — check `~/.vamp/service.log` and `cat $SVDIR/vamp/run` for
   a stale path (e.g. the repo was moved after install; rerun
   `./install.sh` to regenerate the run script with the current path).
+- **`sv status vamp` says `run:` with a PID, but `curl .../healthz` hangs
+  or connects to nothing, and `~/.vamp/service.log` ends with
+  `zoneinfo._common.ZoneInfoNotFoundError: 'No time zone found with key
+  ...'`** — the process is alive but crashing immediately on startup
+  (runit just keeps restarting it, which is why `sv status` still shows
+  "run"). APScheduler asks Python's `zoneinfo` module for the phone's
+  local timezone at startup; unlike desktop Linux, Termux doesn't ship an
+  IANA timezone database `zoneinfo` can find on its own. `git pull &&
+  ./install.sh` fixes it — `requirements.txt` now pins `tzdata`, a pure-
+  Python package that supplies the same database as a fallback. Confirm
+  with `tail -n 20 ~/.vamp/service.log` afterward — it should show
+  `Vamp serving on http://127.0.0.1:8485` instead of a traceback.
 - **Nothing starts after a reboot** — confirm Termux:Boot is installed
   *and was opened at least once*, and that Termux is exempt from battery
   optimization (Android can silently prevent boot receivers from firing
