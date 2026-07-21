@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Notifications — Vamp{% endblock %}
+{% block content %}
+  <h2>Notifications</h2>
+  <p class="hint">
+    Vamp fires real Android notifications through <code>termux-notification</code>
+    (Termux:API): a morning digest and the Sunday Outreach Sprint, both composed from
+    live data. Without Termux:API (desktop, CI, or a phone that hasn't installed it yet)
+    the same message is logged instead of failing (CLAUDE.md portability rule) — nothing
+    here has a live-network or paid dependency.
+  </p>
+
+  <p class="chip {{ 'chip-ready' if available else 'chip-excluded' }}">
+    {{ 'termux-notification found ✓' if available else 'termux-notification not found — logging only' }}
+  </p>
+  {% if not available %}
+    <p class="hint">
+      On the phone: <code>pkg install -y termux-api</code>, then install the
+      <strong>Termux:API</strong> app from F-Droid (same signing-key family as Termux
+      itself) — see <code>docs/PHONE.md</code>. On Android 13+, grant the notification
+      permission the first time Termux:API asks for it, or digests will send but never
+      show up.
+    </p>
+  {% endif %}
+
+  <h3>Morning digest</h3>
+  <p class="hint">
+    Fires daily at 8am: new paying leads captured in the last 24h (with a READY count),
+    prospect follow-ups and gig chase-unpaid reminders due, and tonight's scene events
+    you're going to.
+  </p>
+  {% if last_digest %}
+    <p class="meta">Last sent: {{ last_digest['ts'] }} UTC</p>
+  {% else %}
+    <p class="hint">Never sent yet.</p>
+  {% endif %}
+  <form method="post" action="{{ url_for('notify.send_digest_now') }}">
+    <button type="submit">Send digest now</button>
+  </form>
+
+  <h3>Weekly Outreach Sprint</h3>
+  <p class="hint">
+    Fires Sunday evening at 6pm: pitches drafted and ready, follow-ups due, and
+    prospects still waiting on a pitch — the same aggregation as
+    <a href="{{ url_for('prospects.sprint') }}">/prospects/sprint</a>.
+  </p>
+  {% if last_sprint %}
+    <p class="meta">Last sent: {{ last_sprint['ts'] }} UTC</p>
+  {% else %}
+    <p class="hint">Never sent yet.</p>
+  {% endif %}
+  <form method="post" action="{{ url_for('notify.send_sprint_now') }}">
+    <button type="submit">Send Outreach Sprint now</button>
+  </form>
+{% endblock %}
