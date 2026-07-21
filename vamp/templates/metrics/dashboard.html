@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Metrics — Vamp{% endblock %}
+{% block content %}
+  <h2>Metrics</h2>
+  <p class="hint">The numbers that show whether the hustle is working (PLAN.md §13):
+     pitches → responses → bookings by category, income by month, and which sources
+     actually convert leads into gigs.</p>
+
+  <h3>Pitches → responses → bookings, by category</h3>
+  <p class="hint">Current pipeline stage per prospect: pitched = reached "contacted" or
+     later; responded = reached "in conversation" or further; booked = booked or
+     recurring.</p>
+  {% if data.funnel %}
+    <table>
+      <tr><th>Category</th><th>Pitched</th><th>Responded</th><th>Booked</th></tr>
+      {% for row in data.funnel %}
+        <tr>
+          <td>{{ row['category'] }}</td>
+          <td>{{ row['pitched'] }}</td>
+          <td>{{ row['responded'] }}</td>
+          <td>{{ row['booked'] }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="empty">No prospects yet.</p>
+  {% endif %}
+
+  <h3>Income by month</h3>
+  {% if data.income_by_month %}
+    <table>
+      <tr><th>Month</th><th>Total</th></tr>
+      {% for row in data.income_by_month %}
+        <tr><td>{{ row['month'] }}</td><td>${{ '%.2f'|format(row['total']) }}</td></tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="empty">No income recorded yet.</p>
+  {% endif %}
+  <p class="hint">Full breakdown (by category, pipeline value, rate ranges) lives on
+     <a href="{{ url_for('gigs.income') }}">/gigs/income</a>.</p>
+
+  <h3>Source conversion</h3>
+  <p class="hint">Leads captured per source, and how many turned into an actual gig
+     (a gig row linked back to that source lead).</p>
+  {% if data.sources %}
+    <table>
+      <tr><th>Source</th><th>Kind</th><th>Leads</th><th>→ Gigs</th></tr>
+      {% for row in data.sources %}
+        <tr>
+          <td>{{ row['source_name'] }}</td>
+          <td>{{ row['source_kind'] }}</td>
+          <td>{{ row['leads'] }}</td>
+          <td>{{ row['gigs'] }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="empty">No sources yet.</p>
+  {% endif %}
+{% endblock %}
