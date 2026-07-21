@@ -25,6 +25,10 @@ def main(argv: list[str] | None = None) -> int:
         nargs="*",
         help="Categories to import (default: all). See vamp/prospects/overpass.py.",
     )
+    subparsers.add_parser(
+        "ai-nightly", help="Run the nightly AI batch (scoring, degree review, extraction) now"
+    )
+    subparsers.add_parser("ai-health", help="Check the claude CLI's health and print the result")
 
     args = parser.parse_args(argv)
     config = load_config()
@@ -58,6 +62,27 @@ def main(argv: list[str] | None = None) -> int:
         for r in results:
             status = "ok" if r["ok"] else f"FAILED: {r['error']}"
             print(f"{r['category']}: {r['imported']} imported ({r['seen']} seen) — {status}")
+        return 0
+
+    if args.command == "ai-nightly":
+        from vamp.ai.batch import run_nightly
+
+        conn = get_connection(config.db_path)
+        try:
+            summary = run_nightly(conn, config)
+        finally:
+            conn.close()
+        for key, value in summary.items():
+            print(f"{key}: {value}")
+        return 0
+
+    if args.command == "ai-health":
+        from vamp.ai.health import check_claude_health
+
+        status = check_claude_health()
+        print(status.label)
+        if status.detail:
+            print(status.detail)
         return 0
 
     parser.print_help()

@@ -444,8 +444,15 @@ gigs(id, prospect_id, lead_id, date, venue, pay_agreed, pay_received,
 invoices(id, gig_id, number, issued_at, paid_at, amount, html_path)
 playbooks(id, slug, title, body_md, active_months)
 scores(lead_id, scorer, score, rationale_json, scored_at)
+drafts(id, kind, ref_kind, ref_id, provider, content_json, created_at)
+    -- M5, migration 0006: every AI-drafted artifact (pitch, bio, follow-up,
+    -- sub-availability note, requirement extraction, degree second-opinion),
+    -- cached so nothing is generated (or re-billed to the subscription)
+    -- twice (vamp/ai/drafts.py)
 reminders(id, ref_kind, ref_id, due_at, message, done)
-profile(key, value)
+profile(key, value)  -- from M5 on, also holds the AI health-check cache and
+                      -- her voice-sample/display-name/instrument/home-area
+                      -- fields AI drafting reads (vamp/profile/service.py)
 events(id, ts, kind, payload_json)
 ```
 

@@ -3,10 +3,16 @@ one-tap restore, and the finish-by-hand detail/edit view (PLAN.md §4)."""
 
 from __future__ import annotations
 
-from flask import Blueprint, abort, current_app, redirect, render_template, request, url_for
+import json
+
+from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
 
 from vamp import db as vamp_db
+from vamp.ai import degree_review, scoring
+from vamp.ai import drafts as drafts_service
+from vamp.ai.router import get_provider
 from vamp.filters import REASON_CHIP
+from vamp.filters.degree import REASON as DEGREE_REASON
 from vamp.leads import service
 from vamp.vault import matching as vault_matching
 
@@ -53,9 +59,69 @@ def detail(lead_id: int):
         if lead is None:
             abort(404)
         status = vault_matching.lead_status(conn, lead_id)
+        score_row = drafts_service.latest_score(conn, lead_id)
+        score = None
+        if score_row is not None:
+            score = {
+                "score": score_row["score"],
+                "rationale": json.loads(score_row["rationale_json"] or "{}").get("rationale"),
+                "flags": json.loads(score_row["rationale_json"] or "{}").get("flags", []),
+                "scorer": score_row["scorer"],
+                "scored_at": score_row["scored_at"],
+            }
+        degree_review_row = None
+        if lead["state"] == "excluded" and DEGREE_REASON in (lead["excluded_reason"] or ""):
+            degree_review_row = drafts_service.latest_draft(
+                conn, kind=degree_review.DRAFT_KIND, ref_kind="lead", ref_id=lead_id
+            )
     finally:
         conn.close()
-    return render_template("leads/detail.html", lead=lead, reason_chip=REASON_CHIP, status=status)
+    review = json.loads(degree_review_row["content_json"]) if degree_review_row else None
+    return render_template(
+        "leads/detail.html",
+        lead=lead,
+        reason_chip=REASON_CHIP,
+        status=status,
+        score=score,
+        degree_review=review,
+        degree_reason=DEGREE_REASON,
+    )
+
+
+@bp.route("/leads/<int:lead_id>/score", methods=["POST"])
+def score_now(lead_id: int):
+    config = current_app.config["VAMP_CONFIG"]
+    conn = _conn()
+    try:
+        lead = conn.execute("SELECT * FROM leads WHERE id = ?", (lead_id,)).fetchone()
+        if lead is None:
+            abort(404)
+        result = scoring.score_lead(conn, get_provider(config), lead)
+    finally:
+        conn.close()
+    if result["provider"] == "none":
+        flash("Scored with the heuristic (no AI provider available; see /ai/health).", "info")
+    else:
+        flash("Scored with Claude.", "info")
+    return redirect(url_for("leads.detail", lead_id=lead_id))
+
+
+@bp.route("/leads/<int:lead_id>/degree-review", methods=["POST"])
+def degree_review_now(lead_id: int):
+    config = current_app.config["VAMP_CONFIG"]
+    conn = _conn()
+    try:
+        lead = conn.execute("SELECT * FROM leads WHERE id = ?", (lead_id,)).fetchone()
+        if lead is None:
+            abort(404)
+        if lead["state"] != "excluded" or DEGREE_REASON not in (lead["excluded_reason"] or ""):
+            flash("This lead isn't currently excluded for a degree wall.", "error")
+            return redirect(url_for("leads.detail", lead_id=lead_id))
+        degree_review.review_lead(conn, get_provider(config), lead)
+    finally:
+        conn.close()
+    flash("Got a second opinion on the degree requirement.", "info")
+    return redirect(url_for("leads.detail", lead_id=lead_id))
 
 
 @bp.route("/leads/<int:lead_id>", methods=["POST"])

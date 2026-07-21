@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Profile — Vamp{% endblock %}
+{% block content %}
+  <h2>Profile</h2>
+  <p class="hint">
+    AI drafting (pitches, bios, follow-ups) reads these fields so drafts sound like you instead
+    of a generic template. The voice sample is the important one — paste in a paragraph or two
+    of your own writing (an email, a bio you like, anything in your voice).
+  </p>
+
+  <form method="post" action="{{ url_for('profile.update') }}" class="lead-form">
+    <label>Display name <input type="text" name="display_name" value="{{ profile['display_name'] }}"></label>
+    <label>Instrument(s)/role <input type="text" name="instrument" value="{{ profile['instrument'] }}"></label>
+    <label>Home area <input type="text" name="home_area" value="{{ profile['home_area'] }}"></label>
+    <label>Voice sample <textarea name="voice_sample" rows="8">{{ profile['voice_sample'] }}</textarea></label>
+    <button type="submit">Save</button>
+  </form>
+
+  <p><a href="{{ url_for('ai.health') }}">AI health →</a></p>
+{% endblock %}

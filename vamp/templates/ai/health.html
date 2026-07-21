@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}AI health — Vamp{% endblock %}
+{% block content %}
+  <h2>AI health</h2>
+  <p class="hint">
+    Vamp uses the <code>claude</code> CLI (your household subscription — no API key) for
+    scoring, requirement extraction, and drafting. Every one of those features works without
+    it too, just with plainer heuristic/template output instead of AI (CLAUDE.md: "every AI
+    feature must work (degraded) when no provider is available").
+  </p>
+
+  {% if status %}
+    <p class="chip {{ 'chip-ready' if status.ok else 'chip-excluded' }}">{{ status.label }}</p>
+    {% if status.detail %}<p class="notes">{{ status.detail }}</p>{% endif %}
+    <p class="meta">Last checked: {{ checked_at }} UTC</p>
+  {% else %}
+    <p class="hint">Never checked yet.</p>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('ai.check_now') }}">
+    <button type="submit">Check now</button>
+  </form>
+
+  {% if not status or not status.ok %}
+    <h3>Set up Claude on Termux</h3>
+    <ol>
+      {% for step in fix_steps %}<li><code>{{ step }}</code></li>{% endfor %}
+    </ol>
+  {% endif %}
+
+  <h3>Nightly batch</h3>
+  <p class="hint">
+    Runs automatically at 3am: scores new leads, gives excluded degree-wall leads a second
+    opinion, and runs AI requirement extraction on new leads. Trigger it now to demo/test it.
+  </p>
+  <form method="post" action="{{ url_for('ai.run_nightly_now') }}">
+    <button type="submit">Run nightly batch now</button>
+  </form>
+{% endblock %}

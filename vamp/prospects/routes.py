@@ -4,6 +4,8 @@ trigger (PLAN.md §6/§12 M4)."""
 
 from __future__ import annotations
 
+import json
+
 from flask import (
     Blueprint,
     abort,
@@ -16,6 +18,10 @@ from flask import (
 )
 
 from vamp import db as vamp_db
+from vamp.ai import drafts as drafts_service
+from vamp.ai import notes as notes_service
+from vamp.ai import pitch as pitch_service
+from vamp.ai.router import get_provider
 from vamp.prospects import cadence, pipeline
 from vamp.prospects.overpass import CATEGORY_QUERIES, OverpassImporter
 
@@ -107,6 +113,11 @@ def detail(prospect_id: int):
             playbook_row = conn.execute(
                 "SELECT slug, title FROM playbooks WHERE slug = ?", (row["playbook"],)
             ).fetchone()
+        pitch_row = pitch_service.latest_pitch(conn, prospect_id)
+        followup_row = notes_service.latest_followup(conn, prospect_id)
+        sub_row = drafts_service.latest_draft(
+            conn, kind=notes_service.SUB_AVAILABILITY_KIND, ref_kind="prospect", ref_id=prospect_id
+        )
     finally:
         conn.close()
     return render_template(
@@ -120,7 +131,66 @@ def detail(prospect_id: int):
         states=pipeline.PIPELINE_STATES,
         state_labels=pipeline.STATE_LABELS,
         next_state=pipeline.next_state(row["status"]),
+        pitch_draft=json.loads(pitch_row["content_json"]) if pitch_row else None,
+        pitch_draft_provider=pitch_row["provider"] if pitch_row else None,
+        followup_draft=json.loads(followup_row["content_json"]) if followup_row else None,
+        followup_draft_provider=followup_row["provider"] if followup_row else None,
+        sub_draft=json.loads(sub_row["content_json"]) if sub_row else None,
+        sub_draft_provider=sub_row["provider"] if sub_row else None,
     )
+
+
+@bp.route("/<int:prospect_id>/draft-pitch", methods=["POST"])
+def draft_pitch(prospect_id: int):
+    config = current_app.config["VAMP_CONFIG"]
+    conn = _conn()
+    try:
+        row = pipeline.get_prospect(conn, prospect_id)
+        if row is None:
+            abort(404)
+        result = pitch_service.draft_pitch(conn, get_provider(config), row)
+    finally:
+        conn.close()
+    _flash_draft_result(result)
+    return redirect(url_for("prospects.detail", prospect_id=prospect_id))
+
+
+@bp.route("/<int:prospect_id>/draft-followup", methods=["POST"])
+def draft_followup(prospect_id: int):
+    config = current_app.config["VAMP_CONFIG"]
+    conn = _conn()
+    try:
+        row = pipeline.get_prospect(conn, prospect_id)
+        if row is None:
+            abort(404)
+        result = notes_service.draft_followup(conn, get_provider(config), row)
+    finally:
+        conn.close()
+    _flash_draft_result(result)
+    return redirect(url_for("prospects.detail", prospect_id=prospect_id))
+
+
+@bp.route("/<int:prospect_id>/draft-sub-availability", methods=["POST"])
+def draft_sub_availability(prospect_id: int):
+    date = (request.form.get("date") or "").strip() or "this Sunday"
+    config = current_app.config["VAMP_CONFIG"]
+    conn = _conn()
+    try:
+        row = pipeline.get_prospect(conn, prospect_id)
+        if row is None:
+            abort(404)
+        result = notes_service.draft_sub_availability(conn, get_provider(config), row, date)
+    finally:
+        conn.close()
+    _flash_draft_result(result)
+    return redirect(url_for("prospects.detail", prospect_id=prospect_id))
+
+
+def _flash_draft_result(result: dict) -> None:
+    if result["provider"] == "none":
+        flash("Drafted (heuristic — no AI provider available; see /ai/health).", "info")
+    else:
+        flash("Drafted with Claude.", "info")
 
 
 @bp.route("/<int:prospect_id>/edit", methods=["POST"])

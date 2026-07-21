@@ -19,7 +19,7 @@ from vamp.requirements.parser import parse_requirements
 OPEN_LEAD_STATES = ("inbox", "interested", "preparing", "applied")
 
 
-def _best_asset_id(conn: sqlite3.Connection, asset_kind: str) -> int | None:
+def best_asset_id(conn: sqlite3.Connection, asset_kind: str) -> int | None:
     row = conn.execute(
         "SELECT id FROM assets WHERE kind = ? AND ready = 1 "
         "ORDER BY updated_at DESC, id DESC LIMIT 1",
@@ -42,7 +42,7 @@ def sync_requirements(conn: sqlite3.Connection, lead_id: int, text: str) -> None
     for req in parsed:
         parsed_kinds.add(req.kind)
         asset_kind = REQUIREMENT_TO_ASSET_KIND.get(req.kind)
-        asset_id = _best_asset_id(conn, asset_kind) if asset_kind else None
+        asset_id = best_asset_id(conn, asset_kind) if asset_kind else None
         if req.kind in existing:
             conn.execute(
                 "UPDATE requirements SET detail = ?, satisfied_asset_id = ? WHERE id = ?",
@@ -69,7 +69,7 @@ def rematch_requirements_for_asset_kind(conn: sqlite3.Connection, asset_kind: st
     requirement_kinds = [k for k, a in REQUIREMENT_TO_ASSET_KIND.items() if a == asset_kind]
     if not requirement_kinds:
         return
-    asset_id = _best_asset_id(conn, asset_kind)
+    asset_id = best_asset_id(conn, asset_kind)
     placeholders = ",".join("?" for _ in requirement_kinds)
     conn.execute(
         f"UPDATE requirements SET satisfied_asset_id = ? WHERE kind IN ({placeholders})",

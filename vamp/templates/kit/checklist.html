@@ -25,4 +25,25 @@
     <a href="{{ url_for('vault.repertoire') }}">Repertoire builder</a> ·
     <a href="{{ url_for('vault.epk_preview') }}">EPK export</a>
   </p>
+
+  <section class="ai-draft">
+    <h3>Draft bio (AI)</h3>
+    <p class="hint">
+      Uses your <a href="{{ url_for('profile.edit') }}">profile</a> (name, instrument, home
+      area, voice sample) to draft 50/150/300-word bios. A starting point to edit — save the
+      one you like as a <code>bio</code> asset in the vault yourself.
+    </p>
+    <form method="post" action="{{ url_for('kit.draft_bio') }}">
+      <button type="submit">{{ 'Redraft bio' if bio_draft else 'Draft bio' }}</button>
+    </form>
+    {% if bio_draft %}
+      <p class="hint">Last drafted with: <strong>{{ bio_draft_provider }}</strong></p>
+      <h4>50 words</h4>
+      <pre>{{ bio_draft['bio_50'] }}</pre>
+      <h4>150 words</h4>
+      <pre>{{ bio_draft['bio_150'] }}</pre>
+      <h4>300 words</h4>
+      <pre>{{ bio_draft['bio_300'] }}</pre>
+    {% endif %}
+  </section>
 {% endblock %}

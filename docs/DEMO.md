@@ -457,3 +457,118 @@ make test    # 205+ tests: pipeline states + transitions, cadence engine
              # markdown renderer (incl. HTML-escaping), prospect routes
 make lint
 ```
+
+## M5 — AI layer
+
+Start the app:
+
+```sh
+make dev
+```
+
+The AI layer never needs an API key — it shells out to the `claude` subscription
+CLI when it's available and falls back to heuristics/templates when it isn't.
+Every AI feature below is designed to work either way; the health panel just
+tells you which one you're getting.
+
+### Health panel + Termux setup
+
+Open `http://127.0.0.1:8485/ai`. Before the first check it shows "Never checked
+yet"; tap **Check now** for a real (small) round trip through the CLI —
+`claude` on your `PATH`, then a one-word ping. You'll see one of:
+
+- **Claude: logged in ✓** — the household subscription is live.
+- **Claude: CLI not found** / **installed, not logged in** / **error** — each
+  comes with the Termux fix steps right on the page:
+  ```
+  pkg install -y nodejs-lts
+  npm install -g @anthropic-ai/claude-code
+  claude login
+  ```
+
+Nothing here fails loudly — every route below degrades to the `none` provider
+(heuristics/templates) automatically and tells you which provider actually
+produced what you're looking at.
+
+### Profile (used by every draft)
+
+`http://127.0.0.1:8485/profile` — set your display name, instrument, home
+area, and (most useful) a **voice sample**: paste in a paragraph or two of
+your own writing. Pitch/bio/follow-up drafts are asked to match it.
+
+### Nightly batch scoring, degree second-opinion, requirement extraction
+
+Capture or seed a few leads, then either wait for the scheduled 3am run or
+trigger it now from `/ai` → **Run nightly batch now**. It:
+
+1. **Scores every new lead** 0–100 with a rationale and red-flag chips
+   (`unpaid`, `tips-only`, `deadline-soon`, ...) — cached in `scores`, keyed
+   by whichever provider produced it (`claude` or `none`), so nothing is
+   scored twice. See the score on any lead's detail page, or re-score one
+   lead on demand with its **Score now** button.
+2. **Gives excluded degree-wall leads a second opinion.** Capture a posting
+   with "Bachelor's degree in music required" and no equivalent-experience
+   carve-out — it lands on the Excluded shelf as usual (M1 heuristic). The
+   nightly pass (or the **Get AI second opinion** button on that lead's
+   detail page) re-reads it; with no AI provider it always stands pat
+   ("heuristic exclusion stands" — never invents an override), but a real
+   `claude` pass can lift the wall when the language is softer than the
+   regex could tell, restoring the lead to the inbox (or just dropping the
+   `degree-wall` reason if another exclusion still applies).
+3. **Runs AI requirement extraction** on new leads and merges any requirement
+   kind the M3 heuristic parser missed into the same `requirements` table —
+   additive only, cached per lead by a hash of its text so an edit triggers
+   a fresh pass instead of silently going stale.
+
+```sh
+python -m vamp.cli ai-nightly   # same batch, from the CLI
+python -m vamp.cli ai-health    # prints the health-check result
+```
+
+### One-tap pitch drafting
+
+Open any prospect (`/prospects`) and tap **Draft pitch**. It combines the
+prospect's `angle`, your ready `bio` vault asset (if any), and your profile's
+voice sample into a subject + body — cached and shown right there, with a
+**Redraft pitch** button to try again. The same page has **Draft follow-up**
+(for a prospect gone quiet) and **Draft an "available to sub" note** (pick a
+date) — PLAN.md's Sub List playbook, one tap instead of writing it fresh
+every time. All three are drafts only: nothing is ever sent, no code path
+transmits anything on your behalf — you copy, personalize, and send it
+yourself.
+
+### Bio drafting for the kit builder
+
+`http://127.0.0.1:8485/kit` → **Draft bio** — generates 50/150/300-word bios
+from your profile fields, shown inline as a starting point. Save the one you
+like as a `bio` asset in the vault yourself (Vamp doesn't auto-save AI output
+as a vault asset — you decide what's ready to use).
+
+### Degradation: nothing breaks without Claude
+
+Every AI-backed action above works with `claude` uninstalled, present but not
+logged in, or killed mid-run — see `tests/test_ai_provider.py` (CLI missing,
+non-zero exit, killed mid-run, malformed JSON, non-JSON result text, `is_error`
+envelope, timeout) and `tests/test_ai_route_actions.py` (the same at the route
+level, with `PATH` stripped so tests never shell out to a real CLI). Simulate
+it by hand:
+
+```sh
+mv "$(command -v claude)" "$(command -v claude).disabled" 2>/dev/null || true
+# tap any "Draft..." / "Score now" button — the heuristic result still
+# appears, tagged "none" instead of "claude"
+```
+
+### Tests
+
+```sh
+make test    # 281+ tests: provider abstraction (Claude success/every
+             # failure mode; None heuristics for every task), router
+             # fallback, health check + cache, nightly batch (scoring,
+             # degree second-opinion, requirement extraction — merge-only,
+             # text-hash cache invalidation), pitch/bio/follow-up/sub-note
+             # drafting + caching, profile settings, every new route
+             # (health panel, one-tap drafts) with PATH stripped so no test
+             # ever shells out to a real claude binary
+make lint
+```
