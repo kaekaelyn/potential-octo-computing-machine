@@ -14,6 +14,7 @@ from vamp.ai.router import get_provider
 from vamp.filters import REASON_CHIP
 from vamp.filters.degree import REASON as DEGREE_REASON
 from vamp.leads import service
+from vamp.money import floor as floor_service
 from vamp.vault import matching as vault_matching
 
 bp = Blueprint("leads", __name__)
@@ -24,6 +25,19 @@ def _conn():
     return vamp_db.get_connection(config.db_path)
 
 
+def _below_floor_ids(conn, rows) -> set[int]:
+    floor = floor_service.get_rate_floor(conn)
+    if floor is None:
+        return set()
+    return {
+        r["id"]
+        for r in rows
+        if service.is_paying(r)
+        and not r["strategic"]
+        and floor_service.is_below_floor(service.pay_amount(r), floor)
+    }
+
+
 @bp.route("/leads")
 def inbox():
     conn = _conn()
@@ -32,11 +46,18 @@ def inbox():
             "SELECT * FROM leads WHERE state != 'excluded' ORDER BY first_seen_at DESC"
         ).fetchall()
         statuses = vault_matching.status_for_leads(conn, [r["id"] for r in rows])
+        below_floor = _below_floor_ids(conn, rows)
     finally:
         conn.close()
     paying = [r for r in rows if service.is_paying(r)]
     stepping = [r for r in rows if not service.is_paying(r)]
-    return render_template("leads/inbox.html", paying=paying, stepping=stepping, statuses=statuses)
+    return render_template(
+        "leads/inbox.html",
+        paying=paying,
+        stepping=stepping,
+        statuses=statuses,
+        below_floor=below_floor,
+    )
 
 
 @bp.route("/leads/excluded")
@@ -74,6 +95,12 @@ def detail(lead_id: int):
             degree_review_row = drafts_service.latest_draft(
                 conn, kind=degree_review.DRAFT_KIND, ref_kind="lead", ref_id=lead_id
             )
+        floor = floor_service.get_rate_floor(conn)
+        below_floor = (
+            service.is_paying(lead)
+            and not lead["strategic"]
+            and floor_service.is_below_floor(service.pay_amount(lead), floor)
+        )
     finally:
         conn.close()
     review = json.loads(degree_review_row["content_json"]) if degree_review_row else None
@@ -85,6 +112,7 @@ def detail(lead_id: int):
         score=score,
         degree_review=review,
         degree_reason=DEGREE_REASON,
+        below_floor=below_floor,
     )
 
 
@@ -142,6 +170,7 @@ def update(lead_id: int):
             "pay_min": request.form.get("pay_min") or None,
             "pay_max": request.form.get("pay_max") or None,
             "description": (request.form.get("description") or "").strip(),
+            "strategic": request.form.get("strategic") == "on",
         }
         service.update_lead(conn, lead_id, fields)
     finally:

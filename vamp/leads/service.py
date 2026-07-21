@@ -20,6 +20,13 @@ def is_paying(lead: sqlite3.Row) -> bool:
     return lead["pay_kind"] in PAYING_KINDS
 
 
+def pay_amount(lead: sqlite3.Row) -> float | None:
+    """The figure to compare against the rate floor — the top of the
+    quoted range when both are known, so an uncertain-but-possibly-fine
+    range isn't flagged on its low end alone."""
+    return lead["pay_max"] if lead["pay_max"] is not None else lead["pay_min"]
+
+
 def _capture_source_id(conn: sqlite3.Connection) -> int:
     row = conn.execute("SELECT id FROM sources WHERE kind = 'capture'").fetchone()
     if row:
@@ -115,6 +122,7 @@ def update_lead(conn: sqlite3.Connection, lead_id: int, fields: dict) -> None:
         "description",
     )
     values = {k: fields.get(k) for k in columns}
+    strategic = 1 if fields.get("strategic") else 0
 
     combined_text = f"{values['title'] or ''}\n{values['description'] or ''}"
     reasons = run_hard_filters(combined_text)
@@ -129,7 +137,7 @@ def update_lead(conn: sqlite3.Connection, lead_id: int, fields: dict) -> None:
             title = ?, org = ?, location = ?, url = ?, event_date = ?, deadline = ?,
             pay_kind = ?, pay_min = ?, pay_max = ?, description = ?,
             state = ?, excluded_reason = ?, needs_review = 0,
-            url_hash = ?, dedupe_hash = ?
+            url_hash = ?, dedupe_hash = ?, strategic = ?
         WHERE id = ?
         """,
         (
@@ -147,6 +155,7 @@ def update_lead(conn: sqlite3.Connection, lead_id: int, fields: dict) -> None:
             excluded_reason,
             url_h,
             fuzzy_h,
+            strategic,
             lead_id,
         ),
     )

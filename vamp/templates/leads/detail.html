@@ -2,6 +2,7 @@
 {% block title %}{{ lead['title'] }} — Vamp{% endblock %}
 {% block content %}
   <h2>{{ lead['title'] }}</h2>
+  {% if below_floor %}<span class="chip chip-excluded">−below-floor</span>{% endif %}
 
   <section class="ai-draft">
     <h3>Score
@@ -104,6 +105,8 @@
     <label>Pay min <input type="number" name="pay_min" value="{{ lead['pay_min'] if lead['pay_min'] is not none else '' }}"></label>
     <label>Pay max <input type="number" name="pay_max" value="{{ lead['pay_max'] if lead['pay_max'] is not none else '' }}"></label>
     <label>Description <textarea name="description" rows="8">{{ lead['description'] or '' }}</textarea></label>
+    <label><input type="checkbox" name="strategic"{% if lead['strategic'] %} checked{% endif %}>
+      Strategic (take it even if below floor — silences the chip)</label>
     <button type="submit">Save</button>
   </form>
 {% endblock %}

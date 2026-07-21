@@ -133,3 +133,34 @@ def test_detail_404s_for_missing_lead(vamp_home: Path):
     client, _config = _client(vamp_home)
     response = client.get("/leads/999")
     assert response.status_code == 404
+
+
+def test_below_floor_chip_appears_unless_strategic(vamp_home: Path):
+    from vamp import db as vamp_db
+    from vamp.profile import service as profile_service
+
+    client, config = _client(vamp_home)
+    conn = vamp_db.get_connection(config.db_path)
+    try:
+        profile_service.set_profile(conn, {"rate_floor": "200"})
+    finally:
+        conn.close()
+    lead_id = _insert_lead(config, title="Cheap gig", pay_kind="flat", pay_min=100, pay_max=100)
+
+    body = client.get("/leads").get_data(as_text=True)
+    assert "−below-floor" in body
+    detail = client.get(f"/leads/{lead_id}").get_data(as_text=True)
+    assert "−below-floor" in detail
+
+    client.post(
+        f"/leads/{lead_id}",
+        data={
+            "title": "Cheap gig",
+            "pay_kind": "flat",
+            "pay_min": "100",
+            "pay_max": "100",
+            "strategic": "on",
+        },
+    )
+    body = client.get("/leads").get_data(as_text=True)
+    assert "−below-floor" not in body
