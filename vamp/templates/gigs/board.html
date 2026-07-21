@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Gigs — Vamp{% endblock %}
+{% block content %}
+  <h2>Gigs</h2>
+  <p class="hint">The lifecycle: offered → confirmed → played → paid. A chase-unpaid
+     reminder fires 14 days after a gig is marked played if it's still unpaid.</p>
+  <p class="meta"><a href="{{ url_for('gigs.income') }}">Income dashboard →</a></p>
+
+  <div class="filter-row">
+    <strong>State:</strong>
+    <a href="{{ url_for('gigs.board') }}" class="chip {% if not active_state %}chip-ready{% else %}chip-missing{% endif %}">all</a>
+    {% for s in states %}
+      <a href="{{ url_for('gigs.board', state=s) }}"
+         class="chip {% if active_state == s %}chip-ready{% else %}chip-missing{% endif %}">
+        {{ state_labels[s] }} ({{ state_counts.get(s, 0) }})</a>
+    {% endfor %}
+  </div>
+
+  <ul class="lead-list">
+    {% for g in gigs %}
+      <li class="lead-card">
+        <a href="{{ url_for('gigs.detail', gig_id=g['id']) }}">{{ g['venue'] or 'gig' }} — {{ g['date'] or 'date TBD' }}</a>
+        <div class="lead-meta">
+          <span class="chip chip-missing">{{ state_labels.get(g['state'], g['state']) }}</span>
+          {% if g['pay_agreed'] %}<span>${{ '%.0f'|format(g['pay_agreed']) }}</span>{% endif %}
+          {% if g['id'] in below_floor %}<span class="chip chip-excluded">−below-floor</span>{% endif %}
+        </div>
+      </li>
+    {% else %}
+      <li class="empty">No gigs yet.</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Add a gig</h3>
+  <form method="post" action="{{ url_for('gigs.create') }}" class="lead-form">
+    <label>Venue <input type="text" name="venue"></label>
+    <label>Date <input type="text" name="date" placeholder="YYYY-MM-DD"></label>
+    <label>Pay agreed <input type="number" step="0.01" name="pay_agreed"></label>
+    <label>Notes <textarea name="notes" rows="2"></textarea></label>
+    <button type="submit">Add gig</button>
+  </form>
+{% endblock %}

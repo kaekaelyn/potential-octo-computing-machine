@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Income — Vamp{% endblock %}
+{% block content %}
+  <p class="meta"><a href="{{ url_for('gigs.board') }}">← Gigs</a></p>
+  <h2>Income</h2>
+
+  <dl class="counts">
+    <div><dt>Pipeline value</dt><dd>${{ '%.0f'|format(data.pipeline_value) }}</dd></div>
+    <div><dt>Rate floor</dt><dd>{% if current_floor %}${{ '%.0f'|format(current_floor) }}{% else %}not set{% endif %}</dd></div>
+  </dl>
+  <p class="hint">Pipeline value is confirmed-future gigs — money reasonably expected to arrive.
+     Set your rate floor on <a href="{{ url_for('profile.edit') }}">your profile</a>.</p>
+
+  <h3>By month</h3>
+  {% if data.monthly %}
+    <table>
+      <tr><th>Month</th><th>Total</th></tr>
+      {% for row in data.monthly %}
+        <tr><td>{{ row['month'] }}</td><td>${{ '%.2f'|format(row['total']) }}</td></tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="empty">No income recorded yet.</p>
+  {% endif %}
+
+  <h3>By category</h3>
+  {% if data.by_category %}
+    <table>
+      <tr><th>Category</th><th>Total</th></tr>
+      {% for row in data.by_category %}
+        <tr><td>{{ row['category'] }}</td><td>${{ '%.2f'|format(row['total']) }}</td></tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="empty">No income recorded yet.</p>
+  {% endif %}
+
+  <h3>By year</h3>
+  {% if data.yearly %}
+    <table>
+      <tr><th>Year</th><th>Total</th></tr>
+      {% for row in data.yearly %}
+        <tr><td>{{ row['year'] }}</td><td>${{ '%.2f'|format(row['total']) }}</td></tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="empty">No income recorded yet.</p>
+  {% endif %}
+
+  <h3>Researched OKC rate ranges</h3>
+  <p class="hint">Anchors for setting your floor — most are national benchmarks flagged
+     <code>verified: false</code>; localize before quoting.</p>
+  {% if rate_ranges %}
+    <table>
+      <tr><th>Gig type</th><th>Range</th><th>Unit</th><th></th></tr>
+      {% for r in rate_ranges %}
+        <tr>
+          <td>{{ r['gig_type'] }}</td>
+          <td>${{ r['low']|int if r['low'] is not none else '?' }}–${{ r['high']|int if r['high'] is not none else '?' }}</td>
+          <td>{{ r['unit'] or '' }}</td>
+          <td>{% if not r['verified'] %}<span class="chip chip-excluded">confirm locally</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="empty">No rate ranges seeded yet.</p>
+  {% endif %}
+{% endblock %}
