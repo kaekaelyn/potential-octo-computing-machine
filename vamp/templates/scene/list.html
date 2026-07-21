@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Scene calendar — Vamp{% endblock %}
+{% block content %}
+  <h2>Scene calendar</h2>
+  <p class="hint">Where to be: open mics, art walks, festivals, and the competition
+     deadline calendar. Mark "going" and a "met anyone?" prompt appears once the
+     event has passed (PLAN.md §7).</p>
+
+  <ul class="lead-list">
+    {% for item in events %}
+      {% set e = item.row %}
+      <li class="lead-card">
+        <strong>{{ e['name'] }}</strong>
+        <div class="lead-meta">
+          {% if e['kind'] %}<span class="chip chip-missing">{{ e['kind'] }}</span>{% endif %}
+          {% if e['venue'] %}<span>{{ e['venue'] }}</span>{% endif %}
+          {% if e['area'] %}<span>{{ e['area'] }}</span>{% endif %}
+          <span class="meta">{{ item.cadence_label }}</span>
+          {% if item.next_occurrence %}<span class="meta">next: {{ item.next_occurrence.isoformat() }}</span>{% endif %}
+          {% if e['going'] %}<span class="chip chip-ready">going</span>{% endif %}
+        </div>
+        {% if e['notes'] %}<p class="notes">{{ e['notes'] }}</p>{% endif %}
+        {% if e['url'] %}<p class="meta"><a href="{{ e['url'] }}" target="_blank" rel="noopener noreferrer">details</a></p>{% endif %}
+
+        {% if item.recap %}
+          <form method="post" action="{{ url_for('scene.recap', event_id=e['id']) }}" class="lead-form">
+            <p class="hint">{{ item.recap['message'] }}</p>
+            <label>Name <input type="text" name="person_name" placeholder="leave blank if no one new"></label>
+            <label>Role <input type="text" name="person_role"></label>
+            <label>Org <input type="text" name="person_org"></label>
+            <label>Notes <input type="text" name="person_notes"></label>
+            <button type="submit">Log / dismiss</button>
+          </form>
+        {% endif %}
+
+        <div class="patrol-actions">
+          <form method="post" action="{{ url_for('scene.toggle_going', event_id=e['id']) }}">
+            <button type="submit">{{ 'Not going' if e['going'] else 'Going' }}</button>
+          </form>
+          <form method="post" action="{{ url_for('scene.delete', event_id=e['id']) }}"
+                onsubmit="return confirm('Remove this scene event?');">
+            <button type="submit" class="danger">Delete</button>
+          </form>
+        </div>
+      </li>
+    {% else %}
+      <li class="empty">No scene events yet.</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Add a scene event</h3>
+  <form method="post" action="{{ url_for('scene.create') }}" class="lead-form">
+    <label>Name <input type="text" name="name" required></label>
+    <label>Kind <input type="text" name="kind" placeholder="open_mic / art_walk / festival / competition"></label>
+    <label>Venue <input type="text" name="venue"></label>
+    <label>Area <input type="text" name="area"></label>
+    <label>URL <input type="url" name="url"></label>
+    <fieldset>
+      <legend>Cadence</legend>
+      <label>Frequency
+        <select name="cadence_freq">
+          <option value="">— none —</option>
+          <option value="weekly">Weekly</option>
+          <option value="biweekly">Every 2 weeks</option>
+          <option value="monthly">Monthly</option>
+          <option value="bimonthly">Every 2 months</option>
+          <option value="annual">Annual</option>
+        </select>
+      </label>
+      <label>Weekday (weekly/monthly)
+        <select name="cadence_weekday">
+          <option value="">— confirm —</option>
+          {% for wd in ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"] %}
+            <option value="{{ wd }}">{{ wd.capitalize() }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Week of month (monthly only)
+        <select name="cadence_week">
+          <option value="">—</option>
+          <option value="1">1st</option>
+          <option value="2">2nd</option>
+          <option value="3">3rd</option>
+          <option value="4">4th</option>
+          <option value="-1">last</option>
+        </select>
+      </label>
+      <label>Month (annual only) <input type="number" name="cadence_month" min="1" max="12"></label>
+      <label>Day (annual only) <input type="number" name="cadence_day" min="1" max="31"></label>
+    </fieldset>
+    <label>Notes <textarea name="notes" rows="2"></textarea></label>
+    <button type="submit">Add event</button>
+  </form>
+{% endblock %}

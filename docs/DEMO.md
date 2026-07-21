@@ -572,3 +572,108 @@ make test    # 281+ tests: provider abstraction (Claude success/every
              # ever shells out to a real claude binary
 make lint
 ```
+
+## M6 — Money, follow-ups, scene, people
+
+Start the app:
+
+```sh
+make dev
+```
+
+This milestone is CRUD against the schema that's shipped since M0 — no new
+tables, just the gig lifecycle, invoices, the income dashboard, rate-floor
+chips, the scene calendar's next-date engine, and the people log, all wired
+into the existing `reminders` table.
+
+### Gig lifecycle: offered → confirmed → played → paid
+
+Open `http://127.0.0.1:8485/gigs` and **Add a gig** (venue, date, pay
+agreed). Walk it through the lifecycle from its detail page:
+
+1. **Advance** through `offered → confirmed → played`. Reaching **played**
+   stamps `played_at` and immediately schedules a **chase-unpaid**
+   reminder for +14 days — visible on the gig's detail page and on
+   `/reminders`.
+2. **Create invoice** — generates a numbered (`INV-0001`, sequential and
+   gap-tolerant — deleting one never frees its number for reuse), print-
+   ready, fully self-contained HTML file (`~/.vamp/invoices/INV-0001.html`)
+   with the venue, date, amount, and an UNPAID badge. **Download** opens it
+   with no server needed — print to PDF or attach it as-is.
+3. **Mark paid** on the invoice — regenerates the file with a PAID badge
+   and the paid date, moves the gig to **paid**, fills `pay_received` from
+   the invoice amount if it wasn't already set, and cancels the chase-
+   unpaid reminder (it only nags if the gig is *still* unpaid when it
+   comes due).
+
+No payment processing anywhere — it's a paper trail, not a checkout.
+
+### Rate floor + below-floor chips
+
+Set a personal rate floor on `http://127.0.0.1:8485/profile` (blank = no
+chips at all). Any paying lead quoted below it, or any not-yet-played gig
+agreed below it, shows a `−below-floor` chip on its card and detail page —
+a nudge, never a filter. Check **Strategic** on a lead's or gig's edit form
+(a deliberate below-floor booking — a retirement-circuit foothold, a favor
+for a referring planner) to silence the chip for that one row. The income
+page (`/gigs/income`) lists the seeded, researched OKC rate ranges
+(`rate_ranges`, from M4) as a starting point for picking a number.
+
+### Income dashboard
+
+`http://127.0.0.1:8485/gigs/income` — totals by month and by category
+(from received `pay_received`, falling back to the gig date when a formal
+`paid_at` was never recorded — e.g. cash in hand the night of), by year,
+and **pipeline value**: the sum of `pay_agreed` across every `confirmed`
+gig still in the future — money reasonably expected to arrive.
+
+### Scene calendar: next-date computation + "met anyone?"
+
+`http://127.0.0.1:8485/scene` lists the seeded scene calendar (open mics,
+art walks, festivals, the competition deadline calendar) with a
+human-readable cadence (`Monthly — 1st Friday`, `Annual — apply 01-02 to
+03-02`, `Weekly — confirm night` when the seed data itself doesn't know
+the night) and the computed next occurrence. Add your own event with the
+small structured cadence form (frequency + weekday/week/month/day).
+
+Tap **Going** on First Friday Gallery Walk (or any event). The page
+computes each going event's most recent occurrence on every load (the same
+catch-up-on-open shape as M2's source polling) — once that date has
+passed, a **"Met anyone at ⟨event⟩?"** banner appears right on the card.
+Fill in a name (and role/org/notes) to log them straight into the people
+log with `met_at` prefilled to the event and date, or leave the name blank
+and submit to dismiss it as "no one new" — either way the prompt won't
+fire again until the *next* occurrence passes.
+
+### People log + referral chains
+
+`http://127.0.0.1:8485/people` — add people (name, role, org, where met,
+contact info). Referrals are the metric that matters: from a person's
+detail page, **credit a referral** by picking one of your gigs — it shows
+up as that person's referral chain (person → gig), and the reverse shows
+on the gig's own detail page ("who's credited with referring this gig").
+
+### Reminders, surfaced
+
+`http://127.0.0.1:8485/reminders` consolidates every open reminder in one
+place regardless of which subsystem scheduled it: prospect follow-ups
+(M4), gig chase-unpaid nudges, and scene-event recap prompts, each with a
+friendly label and a link back to the thing it's about. **Done** dismisses
+one without visiting its own page.
+
+### Tests
+
+```sh
+make test    # 337+ tests: gig lifecycle (state stamps, chase-unpaid
+             # scheduling +14d and cancellation on paid, cascade delete),
+             # invoice numbering (sequential, gap-tolerant) + self-contained
+             # HTML generation + paid regeneration, income aggregation
+             # (monthly/category/pipeline value), rate-floor chips on leads
+             # and gigs (strategic override), scene cadence next/previous-
+             # occurrence for every seeded shape (weekly/monthly/annual +
+             # apply windows, unconfirmed fields honestly None), recap
+             # reminder sync + idempotency + the "met anyone?" route,
+             # people CRUD + referral chains, the consolidated reminders
+             # page
+make lint
+```

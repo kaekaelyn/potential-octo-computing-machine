@@ -1,6 +1,9 @@
 <li class="lead-card{% if lead['needs_review'] %} needs-review{% endif %}">
   <a href="{{ url_for('leads.detail', lead_id=lead['id']) }}">{{ lead['title'] }}</a>
   {% if lead['needs_review'] %}<span class="chip chip-review">finish by hand</span>{% endif %}
+  {% if below_floor is defined and lead['id'] in below_floor %}
+    <span class="chip chip-excluded">−below-floor</span>
+  {% endif %}
   {% set req_status = statuses.get(lead['id']) if statuses is defined else None %}
   {% if req_status and req_status.has_requirements %}
     {% if req_status.ready %}

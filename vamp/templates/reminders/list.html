@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Reminders — Vamp{% endblock %}
+{% block content %}
+  <h2>Reminders</h2>
+  <p class="hint">Every open reminder in one place: prospect follow-ups, gig
+     chase-unpaid nudges, and scene-event recap prompts.</p>
+
+  <ul class="checklist">
+    {% for item in items %}
+      <li class="checklist-item">
+        {% if item.row['due_at'] <= now %}
+          <span class="chip chip-review">due</span>
+        {% else %}
+          <span class="chip chip-missing">upcoming</span>
+        {% endif %}
+        {% if item.link %}
+          <a href="{{ item.link }}">{{ item.label }}</a>
+        {% else %}
+          <span>{{ item.label }}</span>
+        {% endif %}
+        <span class="meta">{{ item.row['due_at'] }} UTC</span>
+        <form method="post" action="{{ url_for('reminders.mark_done', reminder_id=item.row['id']) }}">
+          <button type="submit">Done</button>
+        </form>
+      </li>
+    {% else %}
+      <li class="empty">Nothing due — the pipeline is quiet.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

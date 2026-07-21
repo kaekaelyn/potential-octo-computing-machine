@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ person['name'] }} — Vamp{% endblock %}
+{% block content %}
+  <p class="meta"><a href="{{ url_for('people.list_people') }}">← People</a></p>
+  <h2>{{ person['name'] }}</h2>
+  <div class="lead-meta">
+    {% if person['role'] %}<span>{{ person['role'] }}</span>{% endif %}
+    {% if person['org'] %}<span>{{ person['org'] }}</span>{% endif %}
+    {% if person['met_at'] %}<span class="meta">met {{ person['met_at'] }}</span>{% endif %}
+  </div>
+  {% if contact.phone %}<p>Phone: {{ contact.phone }}</p>{% endif %}
+  {% if contact.email %}<p>Email: {{ contact.email }}</p>{% endif %}
+  {% if person['notes'] %}<p class="notes">{{ person['notes'] }}</p>{% endif %}
+
+  <h3>Referral chain ({{ referrals | length }})</h3>
+  {% if referrals %}
+    <ul class="lead-list">
+      {% for r in referrals %}
+        <li class="lead-card">
+          <a href="{{ url_for('gigs.detail', gig_id=r['gig_id']) }}">{{ r['venue'] or 'gig' }} — {{ r['date'] or 'date TBD' }}</a>
+          <div class="lead-meta">
+            <span class="chip chip-missing">{{ r['state'] }}</span>
+            {% if r['pay_agreed'] %}<span>${{ '%.0f'|format(r['pay_agreed']) }}</span>{% endif %}
+          </div>
+          <form method="post" action="{{ url_for('people.delete_referral', referral_id=r['referral_id']) }}">
+            <input type="hidden" name="person_id" value="{{ person['id'] }}">
+            <button type="submit" class="danger">Remove credit</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">No referrals logged yet.</p>
+  {% endif %}
+
+  <h3>Credit a referral</h3>
+  <form method="post" action="{{ url_for('people.add_referral', person_id=person['id']) }}" class="lead-form">
+    <label>Gig
+      <select name="gig_id" required>
+        <option value="">— pick a gig —</option>
+        {% for g in gigs %}
+          <option value="{{ g['id'] }}">{{ g['venue'] or 'gig' }} — {{ g['date'] or 'date TBD' }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="submit">Credit referral</button>
+  </form>
+
+  <h3>Edit</h3>
+  <form method="post" action="{{ url_for('people.edit', person_id=person['id']) }}" class="lead-form">
+    <label>Name <input type="text" name="name" value="{{ person['name'] }}" required></label>
+    <label>Role <input type="text" name="role" value="{{ person['role'] or '' }}"></label>
+    <label>Org <input type="text" name="org" value="{{ person['org'] or '' }}"></label>
+    <label>Where met <input type="text" name="met_at" value="{{ person['met_at'] or '' }}"></label>
+    <label>Phone <input type="text" name="phone" value="{{ contact.phone or '' }}"></label>
+    <label>Email <input type="email" name="email" value="{{ contact.email or '' }}"></label>
+    <label>Notes <textarea name="notes" rows="3">{{ person['notes'] or '' }}</textarea></label>
+    <button type="submit">Save changes</button>
+  </form>
+
+  <form method="post" action="{{ url_for('people.delete', person_id=person['id']) }}"
+        onsubmit="return confirm('Remove this person?');" style="margin-top:1rem;">
+    <button type="submit" class="danger">Delete person</button>
+  </form>
+{% endblock %}

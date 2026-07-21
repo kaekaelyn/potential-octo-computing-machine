@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}{{ g['venue'] or 'Gig' }} — Vamp{% endblock %}
+{% block content %}
+  <p class="meta"><a href="{{ url_for('gigs.board') }}">← Gigs</a></p>
+  <h2>{{ g['venue'] or 'Gig' }} — {{ g['date'] or 'date TBD' }}</h2>
+
+  <div class="lead-meta">
+    <span class="chip chip-missing">{{ state_labels.get(g['state'], g['state']) }}</span>
+    {% if g['pay_agreed'] %}<span>agreed ${{ '%.2f'|format(g['pay_agreed']) }}</span>{% endif %}
+    {% if g['pay_received'] %}<span>received ${{ '%.2f'|format(g['pay_received']) }}</span>{% endif %}
+    {% if below_floor %}<span class="chip chip-excluded">−below-floor</span>{% endif %}
+  </div>
+  {% if g['notes'] %}<p class="notes">{{ g['notes'] }}</p>{% endif %}
+
+  <h3>Lifecycle</h3>
+  <div class="pipeline-actions">
+    {% if next_state %}
+      <form method="post" action="{{ url_for('gigs.advance', gig_id=g['id']) }}">
+        <button type="submit">Advance → {{ state_labels[next_state] }}</button>
+      </form>
+    {% endif %}
+    <form method="post" action="{{ url_for('gigs.set_status', gig_id=g['id']) }}">
+      <label>Set state
+        <select name="state">
+          {% for s in states %}
+            <option value="{{ s }}"{% if s == g['state'] %} selected{% endif %}>{{ state_labels[s] }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button type="submit">Set</button>
+    </form>
+  </div>
+
+  {% if chase_reminder %}
+    <p class="hint">Chase-unpaid reminder: due {{ chase_reminder['due_at'] }} UTC
+      {% if chase_reminder['done'] %}(done){% endif %}</p>
+  {% endif %}
+
+  <h3>Invoices</h3>
+  <form method="post" action="{{ url_for('gigs.create_invoice', gig_id=g['id']) }}" class="lead-form">
+    <label>Amount (blank = pay agreed)
+      <input type="number" step="0.01" name="amount" placeholder="{{ g['pay_agreed'] or '' }}"></label>
+    <button type="submit">Create invoice</button>
+  </form>
+  {% if invoices %}
+    <ul class="lead-list">
+      {% for inv in invoices %}
+        <li class="lead-card">
+          <strong>{{ inv['number'] }}</strong>
+          <div class="lead-meta">
+            <span class="meta">issued {{ inv['issued_at'] }}</span>
+            {% if inv['paid_at'] %}
+              <span class="chip chip-ready">paid {{ inv['paid_at'] }}</span>
+            {% else %}
+              <span class="chip chip-missing">unpaid</span>
+            {% endif %}
+            <span>${{ '%.2f'|format(inv['amount']) }}</span>
+          </div>
+          <p class="meta">
+            <a href="{{ url_for('gigs.download_invoice', invoice_id=inv['id']) }}">Download</a>
+            {% if not inv['paid_at'] %}
+              &middot;
+              <form method="post" action="{{ url_for('gigs.mark_invoice_paid', invoice_id=inv['id']) }}" style="display:inline">
+                <button type="submit">Mark paid</button>
+              </form>
+            {% endif %}
+          </p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">No invoices yet.</p>
+  {% endif %}
+
+  <h3>Referrals</h3>
+  {% if referrals %}
+    <ul class="lead-list">
+      {% for r in referrals %}
+        <li class="lead-card">
+          <a href="{{ url_for('people.detail', person_id=r['person_id']) }}">{{ r['name'] }}</a>
+          {% if r['role'] %}<span class="meta">{{ r['role'] }}</span>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">No one credited with this gig yet.</p>
+  {% endif %}
+  <p class="hint">Credit a referral from that person's <a href="{{ url_for('people.list_people') }}">people page</a>.</p>
+
+  <h3>Edit</h3>
+  <form method="post" action="{{ url_for('gigs.edit', gig_id=g['id']) }}" class="lead-form">
+    <label>Venue <input type="text" name="venue" value="{{ g['venue'] or '' }}"></label>
+    <label>Date <input type="text" name="date" value="{{ g['date'] or '' }}" placeholder="YYYY-MM-DD"></label>
+    <label>Pay agreed <input type="number" step="0.01" name="pay_agreed" value="{{ g['pay_agreed'] if g['pay_agreed'] is not none else '' }}"></label>
+    <label>Pay received <input type="number" step="0.01" name="pay_received" value="{{ g['pay_received'] if g['pay_received'] is not none else '' }}"></label>
+    <label>Expenses <input type="number" step="0.01" name="expenses" value="{{ g['expenses'] if g['expenses'] is not none else '' }}"></label>
+    <label>Mileage <input type="number" step="0.1" name="mileage" value="{{ g['mileage'] if g['mileage'] is not none else '' }}"></label>
+    <label>Notes <textarea name="notes" rows="3">{{ g['notes'] or '' }}</textarea></label>
+    <label><input type="checkbox" name="strategic"{% if g['strategic'] %} checked{% endif %}>
+      Strategic (take it even if below floor — silences the chip)</label>
+    <button type="submit">Save changes</button>
+  </form>
+
+  <form method="post" action="{{ url_for('gigs.delete', gig_id=g['id']) }}"
+        onsubmit="return confirm('Remove this gig?');" style="margin-top:1rem;">
+    <button type="submit" class="danger">Delete gig</button>
+  </form>
+{% endblock %}

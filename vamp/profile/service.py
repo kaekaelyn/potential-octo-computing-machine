@@ -8,13 +8,22 @@ from __future__ import annotations
 
 import sqlite3
 
-FIELDS: tuple[str, ...] = ("display_name", "instrument", "home_area", "voice_sample")
+FIELDS: tuple[str, ...] = (
+    "display_name",
+    "instrument",
+    "home_area",
+    "voice_sample",
+    "rate_floor",
+)
 
 DEFAULTS: dict[str, str] = {
     "display_name": "Kaelyn",
     "instrument": "pianist/vocalist",
     "home_area": "the Oklahoma City metro",
     "voice_sample": "",
+    # Empty = no floor set yet; PLAN.md §8's below-floor chips (M6) stay off
+    # until she sets one from researched rates on /vault or /profile.
+    "rate_floor": "",
 }
 
 

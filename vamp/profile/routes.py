@@ -33,6 +33,7 @@ def update():
         "instrument": (request.form.get("instrument") or "").strip(),
         "home_area": (request.form.get("home_area") or "").strip(),
         "voice_sample": (request.form.get("voice_sample") or "").strip(),
+        "rate_floor": (request.form.get("rate_floor") or "").strip(),
     }
     conn = _conn()
     try:

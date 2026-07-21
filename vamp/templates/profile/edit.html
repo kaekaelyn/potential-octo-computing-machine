@@ -13,8 +13,16 @@
     <label>Instrument(s)/role <input type="text" name="instrument" value="{{ profile['instrument'] }}"></label>
     <label>Home area <input type="text" name="home_area" value="{{ profile['home_area'] }}"></label>
     <label>Voice sample <textarea name="voice_sample" rows="8">{{ profile['voice_sample'] }}</textarea></label>
+    <label>Rate floor, USD (blank = no below-floor chips)
+      <input type="number" step="1" min="0" name="rate_floor" value="{{ profile['rate_floor'] }}"></label>
     <button type="submit">Save</button>
   </form>
+
+  <p class="hint">The rate floor flags paying leads and not-yet-played gigs quoted below it with a
+     <span class="chip chip-excluded">−below-floor</span> chip — a nudge, not a block. Mark one
+     "strategic" on its edit form to silence the chip for a booking you're taking on purpose.
+     See <a href="{{ url_for('gigs.income') }}">researched OKC rate ranges on the income page</a>
+     for a starting number.</p>
 
   <p><a href="{{ url_for('ai.health') }}">AI health →</a></p>
 {% endblock %}
