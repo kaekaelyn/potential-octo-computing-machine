@@ -57,6 +57,7 @@ def test_migrate_is_idempotent(tmp_path: Path):
             "0004_requirements_vault.sql",
             "0005_prospects_engine.sql",
             "0006_ai_layer.sql",
+            "0007_money_scene_people.sql",
         }
     finally:
         conn.close()
