@@ -109,10 +109,23 @@ too rather than assume:
 
 ```sh
 export SVDIR="$PREFIX/var/service"
-sv status vamp          # should print "run:" and a PID
+sv status vamp          # should print "run:" with a PID and a growing uptime
 curl -s http://127.0.0.1:8485/healthz   # {"status": "ok"}
 tail -f ~/.vamp/service.log
 ```
+
+Trust `sv status`'s uptime and the `curl` result over `service.log`'s most
+recent line if they disagree: the run script invokes Python with `-u`
+(unbuffered output) specifically so `tail -f` reflects reality in real
+time, but `service.log` is append-only across every past start — including
+crashes from before a fix — so a large, old file can make a stale error
+look current for a moment. If `sv status` shows a *stable, growing*
+uptime (check it twice a few seconds apart — the PID should stay the same
+and the number should go up) and `curl` succeeds, the app is genuinely
+running regardless of what the tail of the log still shows. Skip past old
+noise with `tail -n 5 ~/.vamp/service.log` right after a fresh `sv
+restart vamp`, or clear it out entirely with `> ~/.vamp/service.log`
+(truncates, doesn't delete the file) once you've confirmed things work.
 
 Then open `http://127.0.0.1:8485` in Chrome and "Add to home screen" for
 a PWA-like launch icon.

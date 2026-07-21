@@ -6,4 +6,10 @@
 cd "__REPO_DIR__" || exit 1
 command -v termux-wake-lock >/dev/null 2>&1 && termux-wake-lock
 mkdir -p "$HOME/.vamp"
-exec "__REPO_DIR__/.venv/bin/python" -m vamp.wsgi >> "$HOME/.vamp/service.log" 2>&1
+# -u: unbuffered stdout/stderr. Without it, Python fully buffers output
+# instead of flushing per line whenever it's not attached to a terminal
+# (exactly the case here, redirected into service.log) — the app can be
+# genuinely up and answering requests for a long time before its own
+# startup line actually reaches the log file, which makes `tail -f`
+# useless for real-time troubleshooting.
+exec "__REPO_DIR__/.venv/bin/python" -u -m vamp.wsgi >> "$HOME/.vamp/service.log" 2>&1
