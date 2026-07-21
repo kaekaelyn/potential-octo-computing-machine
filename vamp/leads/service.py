@@ -31,9 +31,14 @@ def _capture_source_id(conn: sqlite3.Connection) -> int:
 
 
 def create_lead(
-    conn: sqlite3.Connection, parsed: ParsedLead
+    conn: sqlite3.Connection, parsed: ParsedLead, source_id: int | None = None
 ) -> tuple[int, bool, sqlite3.Row | None]:
     """Insert ``parsed`` as a new lead unless it's a duplicate.
+
+    ``parsed`` may be a ``capture.parser.ParsedLead`` or any object with the
+    same attributes — ``sources.base.RawLead`` (M2 adapters) included.
+    ``source_id`` attributes it to a specific source row; omitted, it falls
+    back to the shared capture-source row (M1 behavior).
 
     Returns ``(lead_id, created, existing_row)`` — ``created`` is False and
     ``existing_row`` is the prior lead when a dedupe key already matched.
@@ -48,15 +53,15 @@ def create_lead(
     reasons = run_hard_filters(combined_text)
     state = "excluded" if reasons else "inbox"
     excluded_reason = ",".join(reasons) if reasons else None
-    source_id = _capture_source_id(conn)
+    source_id = source_id if source_id is not None else _capture_source_id(conn)
 
     cur = conn.execute(
         """
         INSERT INTO leads (
             source_id, kind, dedupe_hash, url_hash, url, title, org, location,
-            pay_min, pay_max, pay_kind, deadline, event_date, description,
+            pay_min, pay_max, pay_kind, deadline, event_date, posted_at, description,
             state, excluded_reason, needs_review, raw_json
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             source_id,
@@ -72,6 +77,7 @@ def create_lead(
             parsed.pay_kind,
             parsed.deadline,
             parsed.event_date,
+            getattr(parsed, "posted_at", None),
             parsed.description,
             state,
             excluded_reason,

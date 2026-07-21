@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Sources — Vamp{% endblock %}
+{% block content %}
+  <h2>Sources</h2>
+  <p class="hint">Adzuna and USAJOBS need API keys in <code>~/.vamp/env</code> to fetch anything; add RSS feeds and page watchers below.</p>
+
+  <ul class="lead-list">
+    {% for source in sources %}
+      <li class="lead-card{% if source['last_error'] %} needs-review{% endif %}">
+        <strong>{{ source['name'] }}</strong>
+        <span class="chip{% if source['enabled'] %}{% else %} chip-excluded{% endif %}">
+          {{ source['kind'] }} · {{ 'enabled' if source['enabled'] else 'disabled' }}
+        </span>
+        <div class="lead-meta">
+          <span>every {{ (source['interval_seconds'] / 3600) | round(1) }}h</span>
+          <span>last fetch: {{ source['last_fetch_at'] or 'never' }}</span>
+          <span>last success: {{ source['last_success_at'] or 'never' }}</span>
+        </div>
+        {% if source['last_error'] %}
+          <p class="notes">error: {{ source['last_error'] }}</p>
+        {% endif %}
+        <div class="patrol-actions">
+          <form method="post" action="{{ url_for('sources.toggle', source_id=source['id']) }}">
+            <button type="submit">{{ 'Disable' if source['enabled'] else 'Enable' }}</button>
+          </form>
+        </div>
+      </li>
+    {% else %}
+      <li class="empty">No sources yet.</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Add an RSS feed</h3>
+  <form method="post" action="{{ url_for('sources.add_rss') }}" class="lead-form">
+    <label>Name <input type="text" name="name" required></label>
+    <label>Feed URL <input type="url" name="feed_url" required></label>
+    <label>Poll every (hours) <input type="number" name="interval_hours" min="0.5" step="0.5" value="4"></label>
+    <button type="submit">Add RSS source</button>
+  </form>
+
+  <h3>Add a page watcher</h3>
+  <p class="hint">Refused for facebook/instagram/craigslist/indeed/linkedin domains — share those to Vamp instead. Interval must be at least 24h.</p>
+  <form method="post" action="{{ url_for('sources.add_page_watch') }}" class="lead-form">
+    <label>Name <input type="text" name="name" required></label>
+    <label>Page URL <input type="url" name="url" required></label>
+    <label>Mode
+      <select name="mode">
+        <option value="diff">Whole-page diff</option>
+        <option value="css">CSS selector</option>
+      </select>
+    </label>
+    <label>CSS selector (if mode is "CSS selector") <input type="text" name="selector" placeholder="#opportunities"></label>
+    <label>Poll every (hours, min 24) <input type="number" name="interval_hours" min="24" step="1" value="24"></label>
+    <button type="submit">Add page watcher</button>
+  </form>
+{% endblock %}

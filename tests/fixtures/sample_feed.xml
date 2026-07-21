@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>OKC Arts Council Opportunities</title>
+    <link>https://example.org/opportunities</link>
+    <description>Open calls and job postings from the OKC Arts Council.</description>
+    <item>
+      <title>Accompanist Wanted — Community Choir</title>
+      <link>https://example.org/opportunities/accompanist-wanted</link>
+      <guid>https://example.org/opportunities/accompanist-wanted</guid>
+      <pubDate>Mon, 06 Jul 2026 12:00:00 GMT</pubDate>
+      <description>&lt;p&gt;The OKC Community Choir is seeking a rehearsal accompanist, $50/rehearsal.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Call for Buskers — First Friday Art Walk</title>
+      <link>https://example.org/opportunities/first-friday-buskers</link>
+      <guid>https://example.org/opportunities/first-friday-buskers</guid>
+      <pubDate>Wed, 08 Jul 2026 09:30:00 GMT</pubDate>
+      <description>&lt;p&gt;Unpaid busking slots for the monthly First Friday Art Walk in the Paseo District.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
