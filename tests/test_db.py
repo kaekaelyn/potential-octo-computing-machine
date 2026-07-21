@@ -24,6 +24,7 @@ EXPECTED_TABLES = {
     "profile",
     "events",
     "source_state",
+    "repertoire_items",
 }
 
 
@@ -53,6 +54,7 @@ def test_migrate_is_idempotent(tmp_path: Path):
             "0001_init.sql",
             "0002_capture_fields.sql",
             "0003_sources_scheduling.sql",
+            "0004_requirements_vault.sql",
         }
     finally:
         conn.close()

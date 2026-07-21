@@ -10,6 +10,7 @@ from . import db as vamp_db
 from .config import Config, load_config
 from .sources.catchup import install_catchup_middleware
 from .sources.runner import ensure_default_sources
+from .vault.kit import ensure_default_kit_tasks
 
 
 def create_app(config: Config | None = None, *, catchup_sync: bool = False) -> Flask:
@@ -23,18 +24,23 @@ def create_app(config: Config | None = None, *, catchup_sync: bool = False) -> F
     conn = vamp_db.get_connection(config.db_path)
     try:
         ensure_default_sources(conn)
+        ensure_default_kit_tasks(conn)
     finally:
         conn.close()
 
     from .capture.routes import bp as capture_bp
+    from .kit.routes import bp as kit_bp
     from .leads.routes import bp as leads_bp
     from .patrol.routes import bp as patrol_bp
     from .sources.routes import bp as sources_bp
+    from .vault.routes import bp as vault_bp
 
     app.register_blueprint(capture_bp)
+    app.register_blueprint(kit_bp)
     app.register_blueprint(leads_bp)
     app.register_blueprint(patrol_bp)
     app.register_blueprint(sources_bp)
+    app.register_blueprint(vault_bp)
 
     install_catchup_middleware(app, config, sync=catchup_sync)
 

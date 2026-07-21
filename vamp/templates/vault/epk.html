@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}EPK — Vamp{% endblock %}
+{% block content %}
+  <h2>EPK export</h2>
+  <p class="hint">
+    A one-page, self-contained HTML file built from the vault's ready bio, headshot, live
+    videos, audio, repertoire list, and rate card — attach it, print it to PDF, or host it
+    anywhere. Vamp never publishes it itself.
+  </p>
+
+  <ul class="lead-list">
+    <li class="lead-card{% if not readiness.bio %} needs-review{% endif %}">
+      <span class="chip {{ 'chip-ready' if readiness.bio else 'chip-missing' }}">
+        {{ 'ready' if readiness.bio else 'missing' }}
+      </span> Bio
+    </li>
+    <li class="lead-card{% if not readiness.headshot %} needs-review{% endif %}">
+      <span class="chip {{ 'chip-ready' if readiness.headshot else 'chip-missing' }}">
+        {{ 'ready' if readiness.headshot else 'missing' }}
+      </span> Headshot
+    </li>
+    <li class="lead-card{% if not readiness.live_video %} needs-review{% endif %}">
+      <span class="chip {{ 'chip-ready' if readiness.live_video else 'chip-missing' }}">
+        {{ 'ready' if readiness.live_video else 'missing' }}
+      </span> At least one live video
+    </li>
+  </ul>
+
+  {% if not readiness.core_ready %}
+    <p class="hint">The EPK will still export with whatever's ready — the core three above just make it worth sending.</p>
+  {% endif %}
+
+  <form method="get" action="{{ url_for('vault.epk_download') }}">
+    <button type="submit">Download EPK (epk.html)</button>
+  </form>
+
+  <p><a href="{{ url_for('vault.list_assets') }}">&larr; back to vault</a></p>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Kit builder — Vamp{% endblock %}
+{% block content %}
+  <h2>Kit builder</h2>
+  <p class="hint">Starting from scratch is a supported state — work through this in order.</p>
+  <p class="tagline">{{ done }} / {{ total }} done</p>
+
+  <ul class="kit-list">
+    {% for task in tasks %}
+      <li class="lead-card{% if task['state'] == 'done' %} kit-done{% endif %}">
+        <strong>{{ task['ord'] }}. {{ task['title'] }}</strong>
+        {% if task['asset_kind'] and task['asset_kind'] in vault_ready_kinds %}
+          <span class="chip chip-ready">vault has a ready asset</span>
+        {% endif %}
+        {% if task['detail'] %}<p class="notes">{{ task['detail'] }}</p>{% endif %}
+        <form method="post" action="{{ url_for('kit.toggle', task_id=task['id']) }}">
+          <button type="submit">{{ 'Reopen' if task['state'] == 'done' else 'Mark done' }}</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <p>
+    <a href="{{ url_for('vault.list_assets') }}">Vault</a> ·
+    <a href="{{ url_for('vault.repertoire') }}">Repertoire builder</a> ·
+    <a href="{{ url_for('vault.epk_preview') }}">EPK export</a>
+  </p>
+{% endblock %}

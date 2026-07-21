@@ -1,6 +1,14 @@
 <li class="lead-card{% if lead['needs_review'] %} needs-review{% endif %}">
   <a href="{{ url_for('leads.detail', lead_id=lead['id']) }}">{{ lead['title'] }}</a>
   {% if lead['needs_review'] %}<span class="chip chip-review">finish by hand</span>{% endif %}
+  {% set req_status = statuses.get(lead['id']) if statuses is defined else None %}
+  {% if req_status and req_status.has_requirements %}
+    {% if req_status.ready %}
+      <span class="chip chip-ready">READY</span>
+    {% else %}
+      <span class="chip chip-missing">Missing: {{ req_status.missing_labels|join(', ') }}</span>
+    {% endif %}
+  {% endif %}
   <div class="lead-meta">
     {% if lead['org'] %}<span>{{ lead['org'] }}</span>{% endif %}
     {% if lead['location'] %}<span>{{ lead['location'] }}</span>{% endif %}

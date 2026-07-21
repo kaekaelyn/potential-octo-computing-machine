@@ -103,8 +103,18 @@ without opening Termux manually.
 
 ## Backups
 
-`~/.vamp/` holds all PII (SQLite DB + config) in Termux's private
-storage. Backups (`vamp backup`, landing in M3) tarball this to Android
-shared storage via `termux-setup-storage`; from there, Syncthing or a
-cloud-drive app of your choice can sync it — Vamp itself never uploads
-anything.
+`~/.vamp/` holds all PII (SQLite DB + config + vault assets) in Termux's
+private storage.
+
+```sh
+make backup   # or: .venv/bin/python -m vamp.cli backup
+```
+
+tarballs the SQLite DB (plus its WAL/SHM sidecars) and the vault's
+`assets`/`epk` directories. If `termux-setup-storage` has been run (see
+Install above), the tarball lands in `~/storage/shared/Vamp/backups/` —
+Android shared storage — so Syncthing or a cloud-drive app of your choice
+can sync it from there; Vamp itself never uploads anything. Before
+`termux-setup-storage` (or on desktop), backups fall back to
+`~/.vamp/backups/`. Override the destination entirely with
+`VAMP_BACKUP_DIR=/some/path` in `~/.vamp/env`.

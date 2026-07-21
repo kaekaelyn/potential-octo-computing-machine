@@ -419,6 +419,11 @@ leads(id, source_id, kind,           -- gig|job|competition|open_mic|showcase|ot
 requirements(id, lead_id, kind, detail, satisfied_asset_id)
 assets(id, kind, name, path_or_url, tags, updated_at, ready)
 kit_tasks(id, ord, title, detail, asset_kind, state)
+repertoire_items(id, title, artist, occasions, notes, updated_at)
+    -- M3, migration 0004: individual songs tagged by occasion, behind
+    -- the repertoire list builder; compiled into the vault's single
+    -- assets row of kind='repertoire_list' so it matches like any
+    -- other asset (vamp/vault/repertoire.py)
 prospects(id, name, category, area, address, phone, email, website,
           socials_json, has_piano, angle, status, source, verified,
           notes, last_touch_at, next_touch_at)

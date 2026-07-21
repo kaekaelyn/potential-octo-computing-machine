@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Vault — Vamp{% endblock %}
+{% block content %}
+  <h2>Asset vault</h2>
+  <p class="hint">
+    Bios, headshots, live videos, demos, repertoire list, CV, references, tech rider, rate
+    card, and EPK — tagged, dated, ready or not. See the
+    <a href="{{ url_for('vault.unlock_report') }}">unlock report</a>,
+    <a href="{{ url_for('vault.repertoire') }}">repertoire builder</a>, or
+    <a href="{{ url_for('vault.epk_preview') }}">EPK export</a>.
+  </p>
+
+  {% for kind in asset_kinds %}
+    <section>
+      <h3>{{ asset_labels[kind] }} <span class="count">({{ by_kind[kind]|length }})</span></h3>
+      {% if by_kind[kind] %}
+        <ul class="lead-list">
+          {% for asset in by_kind[kind] %}
+            <li class="lead-card{% if not asset['ready'] %} needs-review{% endif %}">
+              <strong>{{ asset['name'] }}</strong>
+              <span class="chip {{ 'chip-ready' if asset['ready'] else 'chip-missing' }}">
+                {{ 'ready' if asset['ready'] else 'not ready' }}
+              </span>
+              <div class="lead-meta">
+                {% if asset['tags'] %}<span>tags: {{ asset['tags'] }}</span>{% endif %}
+                <span>updated {{ asset['updated_at'] }}</span>
+              </div>
+              {% if asset['path_or_url'] %}
+                <p class="notes">
+                  {% if is_local_file(asset['path_or_url']) %}
+                    file: {{ asset['path_or_url'] }}
+                  {% else %}
+                    <a href="{{ asset['path_or_url'] }}" target="_blank" rel="noopener noreferrer">{{ asset['path_or_url'] }}</a>
+                  {% endif %}
+                </p>
+              {% endif %}
+              <div class="patrol-actions">
+                <form method="post" action="{{ url_for('vault.toggle_ready', asset_id=asset['id']) }}">
+                  <button type="submit">{{ 'Mark not ready' if asset['ready'] else 'Mark ready' }}</button>
+                </form>
+                <form method="post" action="{{ url_for('vault.delete_asset', asset_id=asset['id']) }}"
+                      onsubmit="return confirm('Remove this asset?');">
+                  <button type="submit" class="danger">Delete</button>
+                </form>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="empty">Nothing yet.</p>
+      {% endif %}
+    </section>
+  {% endfor %}
+
+  <h3>Add an asset</h3>
+  <form method="post" action="{{ url_for('vault.create_asset') }}" class="lead-form" enctype="multipart/form-data">
+    <label>Kind
+      <select name="kind">
+        {% for kind in asset_kinds %}
+          <option value="{{ kind }}">{{ asset_labels[kind] }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Name <input type="text" name="name" required placeholder='e.g. "150-word bio" or "Solo improv, June take"'></label>
+    <label>URL (link to a video, doc, etc.) <input type="url" name="url"></label>
+    <label>...or upload a file <input type="file" name="file"></label>
+    <label>Tags (comma-separated) <input type="text" name="tags" placeholder="150-word, wedding"></label>
+    <label><input type="checkbox" name="ready"> Ready to send</label>
+    <button type="submit">Add to vault</button>
+  </form>
+{% endblock %}

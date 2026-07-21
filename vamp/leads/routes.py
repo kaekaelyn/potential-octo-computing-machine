@@ -8,6 +8,7 @@ from flask import Blueprint, abort, current_app, redirect, render_template, requ
 from vamp import db as vamp_db
 from vamp.filters import REASON_CHIP
 from vamp.leads import service
+from vamp.vault import matching as vault_matching
 
 bp = Blueprint("leads", __name__)
 
@@ -24,11 +25,12 @@ def inbox():
         rows = conn.execute(
             "SELECT * FROM leads WHERE state != 'excluded' ORDER BY first_seen_at DESC"
         ).fetchall()
+        statuses = vault_matching.status_for_leads(conn, [r["id"] for r in rows])
     finally:
         conn.close()
     paying = [r for r in rows if service.is_paying(r)]
     stepping = [r for r in rows if not service.is_paying(r)]
-    return render_template("leads/inbox.html", paying=paying, stepping=stepping)
+    return render_template("leads/inbox.html", paying=paying, stepping=stepping, statuses=statuses)
 
 
 @bp.route("/leads/excluded")
@@ -48,11 +50,12 @@ def detail(lead_id: int):
     conn = _conn()
     try:
         lead = conn.execute("SELECT * FROM leads WHERE id = ?", (lead_id,)).fetchone()
+        if lead is None:
+            abort(404)
+        status = vault_matching.lead_status(conn, lead_id)
     finally:
         conn.close()
-    if lead is None:
-        abort(404)
-    return render_template("leads/detail.html", lead=lead, reason_chip=REASON_CHIP)
+    return render_template("leads/detail.html", lead=lead, reason_chip=REASON_CHIP, status=status)
 
 
 @bp.route("/leads/<int:lead_id>", methods=["POST"])
