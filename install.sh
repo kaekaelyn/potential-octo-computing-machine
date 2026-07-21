@@ -41,15 +41,37 @@ install_termux() {
         pkg install -y termux-services termux-api
     fi
 
+    # termux-services' own sv/sv-enable/sv-disable resolve a bare service name
+    # (e.g. "vamp") through the SVDIR env var, falling back to runit's
+    # compiled-in /service default — which doesn't exist under Termux — if
+    # SVDIR is unset. SVDIR is normally exported by
+    # $PREFIX/etc/profile.d/start-services.sh, but that only runs for
+    # interactive shells that source it; this script (`bash install.sh`) is
+    # non-interactive and never does. Export it ourselves so every sv* call
+    # below is unambiguous regardless of the invoking shell's state.
+    export SVDIR="$PREFIX/var/service"
+    export LOGDIR="$PREFIX/var/log"
+
+    # Belt-and-suspenders: also add it to ~/.bashrc (idempotently) so a
+    # plain interactive Termux session has it too, in case
+    # start-services.sh isn't being sourced there for some reason — this is
+    # what let a manually-typed `sv status vamp` fail the same way even
+    # after restarting Termux.
+    if ! grep -q '^export SVDIR=' "$HOME/.bashrc" 2>/dev/null; then
+        {
+            printf '\n# Added by vamp install.sh — termux-services needs this to resolve\n'
+            printf '# service names (sv status vamp, sv up vamp, ...).\n'
+            printf 'export SVDIR="%s/var/service"\n' "$PREFIX"
+        } >> "$HOME/.bashrc"
+    fi
+
     # termux-services' own sv-enable is just `rm -f "$SVDIR/$1/down"; sv up $1`
-    # (SVDIR = $PREFIX/var/service) — unlike vanilla/Void-Linux runit, nothing
-    # symlinks a staging directory into place for you. The service's own
-    # directory (with its `run` script) has to already live directly under
-    # $SVDIR, or every sv-enable/sv up/sv status fails with "unable to change
-    # to service directory: file does not exist", deterministically, every
-    # time — not a timing issue.
-    local svdir="$PREFIX/var/service"
-    local sv_dir="$svdir/vamp"
+    # — unlike vanilla/Void-Linux runit, nothing symlinks a staging directory
+    # into place for you. The service's own directory (with its `run` script)
+    # has to already live directly under $SVDIR, or every sv-enable/sv up/
+    # sv status fails with "unable to change to service directory: file does
+    # not exist", deterministically, every time — not a timing issue.
+    local sv_dir="$SVDIR/vamp"
     rm -rf "$PREFIX/etc/sv/vamp"  # stale location from an earlier (broken) version of this script
     log "Writing runit service to $sv_dir/run"
     mkdir -p "$sv_dir"
@@ -66,15 +88,15 @@ install_termux() {
         # termux-services was potentially just installed moments ago (above) —
         # its runsvdir supervisor may not be up yet in this shell. The boot
         # script already guards against this same race; mirror it here.
-        if ! pgrep -f "runsvdir $svdir" >/dev/null 2>&1; then
+        if ! pgrep -f "runsvdir $SVDIR" >/dev/null 2>&1; then
             log "runsvdir not running yet — starting it"
-            runsvdir "$svdir" >> "$HOME/.vamp/runsvdir.log" 2>&1 &
+            runsvdir "$SVDIR" >> "$HOME/.vamp/runsvdir.log" 2>&1 &
             sleep 2
         fi
         sv-enable vamp || warn "sv-enable failed — restart Termux (PATH refresh) and rerun install.sh"
         sv up vamp 2>/dev/null || warn "sv up vamp failed — check 'sv status vamp' after restarting Termux"
     else
-        warn "sv-enable not found on PATH yet — restart Termux and run: sv-enable vamp && sv up vamp"
+        warn "sv-enable not found on PATH yet — restart Termux and run: export SVDIR=\$PREFIX/var/service && sv-enable vamp && sv up vamp"
     fi
 
     cat <<EOF
@@ -83,8 +105,12 @@ Next steps (see docs/PHONE.md for details):
   1. Install the Termux:Boot app from F-Droid (not Play Store) and open it
      once so it registers with Android.
   2. Exempt Termux from battery optimization in Android settings.
-  3. If 'sv-enable'/'sv' were reported as not found above, restart Termux
-     and rerun: sv-enable vamp && sv up vamp
+  3. If 'sv-enable'/'sv' were reported as not found or failed above,
+     restart Termux and rerun:
+       export SVDIR=\$PREFIX/var/service && sv-enable vamp && sv up vamp
+     (this script already added that export to ~/.bashrc, so a freshly
+     opened Termux session should have SVDIR set without typing it —
+     but set it explicitly if 'sv status vamp' still complains.)
   4. Open http://127.0.0.1:8485 in a browser and "Add to home screen".
 EOF
 }

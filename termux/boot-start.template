@@ -9,10 +9,15 @@
 termux-wake-lock
 
 mkdir -p "$HOME/.vamp"
-SV_DIR="$PREFIX/var/service"
+# sv-enable/sv up resolve the bare "vamp" service name through SVDIR, which
+# is normally exported by an interactive shell sourcing
+# $PREFIX/etc/profile.d/start-services.sh — a boot script is neither, so
+# export it directly or every sv* call below fails with "unable to change
+# to service directory: file does not exist".
+export SVDIR="$PREFIX/var/service"
 
-if ! pgrep -f "runsvdir $SV_DIR" >/dev/null 2>&1; then
-  runsvdir "$SV_DIR" >> "$HOME/.vamp/runsvdir.log" 2>&1 &
+if ! pgrep -f "runsvdir $SVDIR" >/dev/null 2>&1; then
+  runsvdir "$SVDIR" >> "$HOME/.vamp/runsvdir.log" 2>&1 &
 fi
 
 sleep 2

@@ -64,36 +64,51 @@ fill anything in.)
    at `~/.vamp/vamp.db`, applying migrations.
 3. Installs `termux-services` and `termux-api` (via `pkg`) if the
    `sv-enable`/`termux-wake-lock` commands aren't already on `PATH`.
-4. Writes a [runit](http://smarden.org/runit/) service definition to
-   `$PREFIX/var/service/vamp/run` (rendered from
-   `termux/service-run.template`) that: `cd`s into the repo, takes a
-   `termux-wake-lock`, and `exec`s `.venv/bin/python -m vamp.wsgi` —
-   logging to `~/.vamp/service.log`. `exec` (not a backgrounded
-   subprocess) is required: runit supervises the service's own PID, and
-   a script that daemonizes/forks breaks that contract. Unlike vanilla/
-   Void-Linux runit, `termux-services` has no `/etc/sv` staging directory
-   or symlink step — `$PREFIX/var/service` (`$SVDIR`) is where
+4. Exports `SVDIR=$PREFIX/var/service` (and `LOGDIR`) for the rest of the
+   script, and appends the same `export SVDIR=...` to `~/.bashrc` if it's
+   not there already. `termux-services`' `sv`/`sv-enable`/`sv-disable` all
+   resolve a bare service name (`vamp`) through `$SVDIR`, falling back to
+   runit's compiled-in `/service` default — which doesn't exist under
+   Termux — if it's unset. It's normally exported by
+   `$PREFIX/etc/profile.d/start-services.sh`, but that only runs for
+   interactive shells that source it; a non-interactive `bash install.sh`
+   run never does, and apparently not every interactive Termux session
+   reliably does either. Without this, every `sv-enable`/`sv up`/
+   `sv status` fails with "unable to change to service directory: file
+   does not exist" — regardless of anything else being correct.
+5. Writes a [runit](http://smarden.org/runit/) service definition to
+   `$SVDIR/vamp/run` (rendered from `termux/service-run.template`) that:
+   `cd`s into the repo, takes a `termux-wake-lock`, and `exec`s
+   `.venv/bin/python -m vamp.wsgi` — logging to `~/.vamp/service.log`.
+   `exec` (not a backgrounded subprocess) is required: runit supervises
+   the service's own PID, and a script that daemonizes/forks breaks that
+   contract. Unlike vanilla/Void-Linux runit, `termux-services` has no
+   `/etc/sv` staging directory or symlink step — `$SVDIR` is where
    `runsvdir` watches *and* where a service's own directory has to live;
    an earlier version of this script wrote to `$PREFIX/etc/sv/vamp`
-   assuming something would symlink it into place, which nothing did,
-   so `sv-enable`/`sv up`/`sv status` always failed with "unable to
-   change to service directory: file does not exist". `install.sh`
-   cleans up that stale location if it finds it.
-5. Runs `sv-enable vamp` (termux-services' own script: `rm -f
+   assuming something would symlink it into place, which nothing did.
+   `install.sh` cleans up that stale location if it finds it.
+6. Runs `sv-enable vamp` (termux-services' own script: `rm -f
    $SVDIR/vamp/down; sv up vamp` — clears the "stay stopped" marker, if
    any, and starts it), which both starts the service now and marks it
    to persist across `sv` restarts.
-6. Writes `~/.termux/boot/start-vamp.sh` (rendered from
+7. Writes `~/.termux/boot/start-vamp.sh` (rendered from
    `termux/boot-start.template`), which Termux:Boot runs on every device
-   boot. Boot scripts don't run as a login shell, so
-   `termux-services`' own supervisor (`runsvdir`) may not be up yet; the
-   script starts it if it isn't running, waits briefly, then
-   `sv-enable`/`sv up`s the vamp service. It also takes its own
-   wake-lock, in case the app was killed and this is a cold boot.
+   boot. Boot scripts don't run as a login shell either, so they export
+   `SVDIR` themselves too; the script also starts `runsvdir` if it isn't
+   running, waits briefly, then `sv-enable`/`sv up`s the vamp service —
+   plus its own wake-lock, in case the app was killed and this is a cold
+   boot.
 
 ## Verifying it worked
 
+`install.sh` appends `export SVDIR=$PREFIX/var/service` to `~/.bashrc`, so
+a **newly opened** Termux session should already have it — but since
+that's exactly the thing that's gone wrong before, set it explicitly here
+too rather than assume:
+
 ```sh
+export SVDIR="$PREFIX/var/service"
 sv status vamp          # should print "run:" and a PID
 curl -s http://127.0.0.1:8485/healthz   # {"status": "ok"}
 tail -f ~/.vamp/service.log
@@ -139,23 +154,34 @@ portability rule that core behavior always has a non-Termux fallback.
 
 ## Troubleshooting
 
-- **`sv status vamp`/`sv up vamp` report `fail: vamp: unable to change to
-  service directory: file does not exist`** — if you're on a checkout from
-  before this was fixed, `install.sh` wrote the service to
-  `$PREFIX/etc/sv/vamp` and expected `sv-enable` to symlink it into
-  `$PREFIX/var/service`; `termux-services`' real `sv-enable` doesn't do
-  that (it's just `rm -f $SVDIR/vamp/down; sv up vamp`), so
-  `$PREFIX/var/service/vamp` never existed and every `sv` command against
-  it failed, deterministically, no matter how many times you retried or
-  restarted Termux. `git pull && ./install.sh` fixes it — the current
-  script writes directly to `$PREFIX/var/service/vamp` (where `SVDIR`
-  actually expects it) and cleans up the stale `etc/sv` location.
+- **`sv status vamp`/`sv up vamp`/`sv-enable vamp` report `fail: vamp:
+  unable to change to service directory: file does not exist`** — two
+  possible causes, and it's worth checking both:
+  1. **`$SVDIR` isn't set.** `sv`/`sv-enable` resolve a bare service name
+     through the `SVDIR` env var, falling back to runit's compiled-in
+     `/service` (which doesn't exist under Termux) if it's unset — this
+     is normally exported by an interactive shell sourcing
+     `$PREFIX/etc/profile.d/start-services.sh`, but that doesn't always
+     reliably happen (and never happens for a non-interactive script).
+     Run `echo "$SVDIR"` — if it's empty, that's it. Fix it for the
+     current shell with `export SVDIR="$PREFIX/var/service"`, and
+     confirm `install.sh` added the same line to `~/.bashrc` (`grep
+     SVDIR ~/.bashrc`) so future sessions don't need it typed by hand.
+  2. **You're on a checkout from before this was fixed.** An earlier
+     `install.sh` wrote the service to `$PREFIX/etc/sv/vamp` and expected
+     `sv-enable` to symlink it into `$SVDIR`; `termux-services`' real
+     `sv-enable` doesn't do that (it's just `rm -f $SVDIR/vamp/down; sv
+     up vamp`), so `$SVDIR/vamp` never existed and every `sv` command
+     against it failed no matter how many times you retried or restarted
+     Termux. `git pull && ./install.sh` fixes it — the current script
+     writes directly to `$SVDIR/vamp` and cleans up the stale `etc/sv`
+     location.
 - **`sv-enable: command not found` right after install** — the
   `termux-services` package adds shell integration that a running shell
   won't pick up until it restarts. Close and reopen Termux, then rerun
-  `sv-enable vamp && sv up vamp`.
-- **Service enabled but not running (and the directory is correct)** —
-  check `~/.vamp/service.log` and `cat $PREFIX/var/service/vamp/run` for
+  `export SVDIR="$PREFIX/var/service" && sv-enable vamp && sv up vamp`.
+- **Service enabled but not running (`$SVDIR` is set and the directory is
+  correct)** — check `~/.vamp/service.log` and `cat $SVDIR/vamp/run` for
   a stale path (e.g. the repo was moved after install; rerun
   `./install.sh` to regenerate the run script with the current path).
 - **Nothing starts after a reboot** — confirm Termux:Boot is installed
