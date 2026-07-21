@@ -58,6 +58,44 @@
     </ul>
   {% endif %}
 
+  <section class="ai-draft">
+    <h3>Draft a pitch (AI)</h3>
+    <p class="hint">Uses this prospect's angle, your vault bio, and your voice sample. Drafts only — you send it yourself.</p>
+    <form method="post" action="{{ url_for('prospects.draft_pitch', prospect_id=p['id']) }}">
+      <button type="submit">{{ 'Redraft pitch' if pitch_draft else 'Draft pitch' }}</button>
+    </form>
+    {% if pitch_draft %}
+      <p class="hint">Last drafted with: <strong>{{ pitch_draft_provider }}</strong></p>
+      <p><strong>Subject:</strong> {{ pitch_draft['subject'] }}</p>
+      <pre>{{ pitch_draft['body'] }}</pre>
+    {% endif %}
+  </section>
+
+  <section class="ai-draft">
+    <h3>Draft a follow-up (AI)</h3>
+    <form method="post" action="{{ url_for('prospects.draft_followup', prospect_id=p['id']) }}">
+      <button type="submit">{{ 'Redraft follow-up' if followup_draft else 'Draft follow-up' }}</button>
+    </form>
+    {% if followup_draft %}
+      <p class="hint">Last drafted with: <strong>{{ followup_draft_provider }}</strong></p>
+      <p><strong>Subject:</strong> {{ followup_draft['subject'] }}</p>
+      <pre>{{ followup_draft['body'] }}</pre>
+    {% endif %}
+  </section>
+
+  <section class="ai-draft">
+    <h3>Draft an "available to sub" note (AI)</h3>
+    <form method="post" action="{{ url_for('prospects.draft_sub_availability', prospect_id=p['id']) }}" class="lead-form">
+      <label>Date <input type="text" name="date" placeholder="this Sunday"></label>
+      <button type="submit">Draft note</button>
+    </form>
+    {% if sub_draft %}
+      <p class="hint">Last drafted with: <strong>{{ sub_draft_provider }}</strong> for {{ sub_draft['date'] }}</p>
+      <p><strong>Subject:</strong> {{ sub_draft['subject'] }}</p>
+      <pre>{{ sub_draft['body'] }}</pre>
+    {% endif %}
+  </section>
+
   <h3>Log a touch</h3>
   <p class="hint">Record what you already did by hand — logging a pitch or follow-up arms the +7d/+21d cadence.</p>
   <form method="post" action="{{ url_for('prospects.touch', prospect_id=p['id']) }}" class="lead-form">

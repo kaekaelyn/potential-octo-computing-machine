@@ -3,6 +3,41 @@
 {% block content %}
   <h2>{{ lead['title'] }}</h2>
 
+  <section class="ai-draft">
+    <h3>Score
+      {% if score and score.score is not none %}
+        <span class="chip chip-ready">{{ score.score }}/100</span>
+      {% endif %}
+    </h3>
+    {% if score %}
+      <p class="hint">Scored by <strong>{{ score.scorer }}</strong> at {{ score.scored_at }} UTC</p>
+      {% if score.rationale %}<p class="notes">{{ score.rationale }}</p>{% endif %}
+      {% for flag in score.flags %}<span class="chip chip-excluded">{{ flag }}</span>{% endfor %}
+    {% else %}
+      <p class="hint">Not scored yet — the nightly AI batch scores new leads automatically, or score it now.</p>
+    {% endif %}
+    <form method="post" action="{{ url_for('leads.score_now', lead_id=lead['id']) }}">
+      <button type="submit">{{ 'Re-score' if score else 'Score now' }}</button>
+    </form>
+  </section>
+
+  {% if degree_reason in (lead['excluded_reason'] or '') %}
+    <section class="ai-draft">
+      <h3>AI second opinion on the degree wall</h3>
+      {% if degree_review %}
+        <p class="hint">
+          {{ 'Would lift the wall' if degree_review.override else 'Agrees with the exclusion' }}
+          — {{ degree_review.reasoning }}
+        </p>
+      {% else %}
+        <p class="hint">Not reviewed yet — the nightly batch reviews degree-wall exclusions automatically, or get an opinion now.</p>
+      {% endif %}
+      <form method="post" action="{{ url_for('leads.degree_review_now', lead_id=lead['id']) }}">
+        <button type="submit">Get AI second opinion</button>
+      </form>
+    </section>
+  {% endif %}
+
   {% if status.checklist %}
     <section>
       <h3>Requirements
