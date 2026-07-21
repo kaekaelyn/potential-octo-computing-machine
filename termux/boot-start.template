@@ -19,7 +19,16 @@ export SVDIR="$PREFIX/var/service"
 if ! pgrep -f "runsvdir $SVDIR" >/dev/null 2>&1; then
   runsvdir "$SVDIR" >> "$HOME/.vamp/runsvdir.log" 2>&1 &
 fi
-
 sleep 2
-sv-enable vamp >/dev/null 2>&1 || true
-sv up vamp >/dev/null 2>&1 || true
+
+# runsvdir rescans periodically rather than reacting to the vamp service
+# directory instantly, so `sv up` can fail with "unable to open
+# supervise/ok: file does not exist" on the first try even once SVDIR and
+# the directory are correct — retry briefly instead of giving up.
+rm -f "$SVDIR/vamp/down" 2>/dev/null
+i=0
+while [ "$i" -lt 8 ]; do
+  sv up vamp >/dev/null 2>&1 && break
+  sleep 1
+  i=$((i + 1))
+done

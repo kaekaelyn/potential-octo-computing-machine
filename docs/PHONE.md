@@ -176,6 +176,18 @@ portability rule that core behavior always has a non-Termux fallback.
      Termux. `git pull && ./install.sh` fixes it — the current script
      writes directly to `$SVDIR/vamp` and cleans up the stale `etc/sv`
      location.
+- **`sv status vamp`/`sv up vamp` report `warning: vamp: unable to open
+  supervise/ok: file does not exist`** (note: *unable to open*, not
+  *unable to change to* — a different error from the one above) — this
+  means `$SVDIR` and the service directory are both correct, but
+  `runsvdir` hasn't spawned its supervisor process for `vamp` yet.
+  `runsvdir` rescans its directory periodically rather than reacting to a
+  just-created service directory instantly, so calling `sv up` immediately
+  after `install.sh` creates it can lose that race. `install.sh` and the
+  boot script both retry `sv up` for several seconds now rather than
+  failing on the first attempt; if you still see this after `git pull &&
+  ./install.sh`, just wait a few seconds and rerun `sv status vamp` by
+  hand — it resolves itself once `runsvdir` catches up.
 - **`sv-enable: command not found` right after install** — the
   `termux-services` package adds shell integration that a running shell
   won't pick up until it restarts. Close and reopen Termux, then rerun

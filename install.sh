@@ -93,8 +93,30 @@ install_termux() {
             runsvdir "$SVDIR" >> "$HOME/.vamp/runsvdir.log" 2>&1 &
             sleep 2
         fi
-        sv-enable vamp || warn "sv-enable failed — restart Termux (PATH refresh) and rerun install.sh"
-        sv up vamp 2>/dev/null || warn "sv up vamp failed — check 'sv status vamp' after restarting Termux"
+
+        # sv-enable is just `rm -f $SVDIR/vamp/down; sv up vamp` — do that
+        # ourselves so we can retry the `sv up` half. runsvdir rescans its
+        # directory periodically rather than reacting to a just-created
+        # service directory instantly, so `runsv` (and the supervise/ok file
+        # `sv up` needs) may not exist yet for `vamp` on the first try, even
+        # though SVDIR and the directory are both correct — this fails as
+        # "unable to open supervise/ok: file does not exist", not the
+        # "unable to change to service directory" error a wrong SVDIR/path
+        # would give.
+        rm -f "$sv_dir/down"
+        local started=0
+        local attempt=1
+        while [ "$attempt" -le 8 ]; do
+            if sv up vamp 2>/dev/null; then
+                started=1
+                break
+            fi
+            sleep 1
+            attempt=$((attempt + 1))
+        done
+        if [ "$started" -eq 0 ]; then
+            warn "sv up vamp failed after retries — check 'sv status vamp' after restarting Termux"
+        fi
     else
         warn "sv-enable not found on PATH yet — restart Termux and run: export SVDIR=\$PREFIX/var/service && sv-enable vamp && sv up vamp"
     fi
