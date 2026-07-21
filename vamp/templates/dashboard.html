@@ -1,29 +1,16 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Vamp</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-  <header>
-    <h1>Vamp</h1>
-    <p class="tagline">vamp till ready</p>
-  </header>
+{% extends "base.html" %}
+{% block content %}
+  <p class="tagline">vamp till ready</p>
 
-  <main>
-    <p>Skeleton is up. This dashboard will grow into the leads inbox,
-       prospects pipeline, and daily loop starting at milestone M1.</p>
+  <p>Capture from anywhere with Share → Vamp, work the two-shelf inbox,
+     and keep the daily patrol checklist honest.</p>
 
-    <dl class="counts">
-      <div><dt>Sources</dt><dd>{{ counts.sources }}</dd></div>
-      <div><dt>Leads</dt><dd>{{ counts.leads }}</dd></div>
-      <div><dt>Prospects</dt><dd>{{ counts.prospects }}</dd></div>
-      <div><dt>Gigs</dt><dd>{{ counts.gigs }}</dd></div>
-    </dl>
+  <dl class="counts">
+    <div><dt>Sources</dt><dd>{{ counts.sources }}</dd></div>
+    <div><dt>Leads</dt><dd>{{ counts.leads }}</dd></div>
+    <div><dt>Prospects</dt><dd>{{ counts.prospects }}</dd></div>
+    <div><dt>Gigs</dt><dd>{{ counts.gigs }}</dd></div>
+  </dl>
 
-    <p class="meta">version {{ version }} &middot; db: <code>{{ db_path }}</code></p>
-  </main>
-</body>
-</html>
+  <p class="meta">version {{ version }} &middot; db: <code>{{ db_path }}</code></p>
+{% endblock %}

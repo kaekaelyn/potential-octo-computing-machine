@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Vamp{% endblock %}</title>
+  <link rel="manifest" href="{{ url_for('manifest') }}">
+  <meta name="theme-color" content="#6b4fa0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1><a href="{{ url_for('dashboard') }}">Vamp</a></h1>
+    <nav class="topnav">
+      <a href="{{ url_for('leads.inbox') }}">Inbox</a>
+      <a href="{{ url_for('capture.form') }}">Capture</a>
+      <a href="{{ url_for('leads.excluded') }}">Excluded</a>
+      <a href="{{ url_for('patrol.list_items') }}">Patrol</a>
+    </nav>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for category, message in messages %}
+            <li class="flash flash-{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="{{ url_for('static', filename='register-sw.js') }}" defer></script>
+</body>
+</html>

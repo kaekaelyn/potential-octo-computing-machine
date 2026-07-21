@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Inbox — Vamp{% endblock %}
+{% block content %}
+  <h2>Leads inbox</h2>
+
+  <section>
+    <h3>Paying <span class="count">({{ paying|length }})</span></h3>
+    {% if paying %}
+      <ul class="lead-list">
+        {% for lead in paying %}{% include "leads/_lead_card.html" %}{% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">No paying leads yet — try Capture.</p>
+    {% endif %}
+  </section>
+
+  <section>
+    <h3>Stepping-stones <span class="count">({{ stepping|length }})</span></h3>
+    {% if stepping %}
+      <ul class="lead-list">
+        {% for lead in stepping %}{% include "leads/_lead_card.html" %}{% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">Nothing here yet.</p>
+    {% endif %}
+  </section>
+{% endblock %}

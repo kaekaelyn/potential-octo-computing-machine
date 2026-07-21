@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Excluded — Vamp{% endblock %}
+{% block content %}
+  <h2>Excluded</h2>
+  <p class="hint">Filtered out automatically by the hard filters. One tap restores a lead to the inbox.</p>
+
+  {% if leads %}
+    <ul class="lead-list">
+      {% for lead in leads %}
+        <li class="lead-card">
+          <a href="{{ url_for('leads.detail', lead_id=lead['id']) }}">{{ lead['title'] }}</a>
+          <div class="lead-meta">
+            {% for code in (lead['excluded_reason'] or '').split(',') if code %}
+              <span class="chip chip-excluded">{{ reason_chip.get(code, '−' + code) }}</span>
+            {% endfor %}
+          </div>
+          <form method="post" action="{{ url_for('leads.restore', lead_id=lead['id']) }}">
+            <button type="submit">Restore</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">Nothing excluded.</p>
+  {% endif %}
+{% endblock %}

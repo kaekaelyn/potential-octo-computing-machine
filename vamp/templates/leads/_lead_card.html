@@ -1,0 +1,17 @@
+<li class="lead-card{% if lead['needs_review'] %} needs-review{% endif %}">
+  <a href="{{ url_for('leads.detail', lead_id=lead['id']) }}">{{ lead['title'] }}</a>
+  {% if lead['needs_review'] %}<span class="chip chip-review">finish by hand</span>{% endif %}
+  <div class="lead-meta">
+    {% if lead['org'] %}<span>{{ lead['org'] }}</span>{% endif %}
+    {% if lead['location'] %}<span>{{ lead['location'] }}</span>{% endif %}
+    <span class="pay">
+      {%- if lead['pay_kind'] == 'unpaid' -%}
+        unpaid
+      {%- elif lead['pay_min'] -%}
+        ${{ lead['pay_min']|int }}{% if lead['pay_max'] and lead['pay_max'] != lead['pay_min'] %}–${{ lead['pay_max']|int }}{% endif %}{% if lead['pay_kind'] == 'hourly' %}/hr{% endif %}
+      {%- else -%}
+        {{ lead['pay_kind'] }}
+      {%- endif -%}
+    </span>
+  </div>
+</li>

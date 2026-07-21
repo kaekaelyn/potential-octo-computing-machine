@@ -32,10 +32,195 @@ header h1 {
   color: var(--accent);
 }
 
+header h1 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.topnav {
+  display: flex;
+  gap: 1rem;
+  margin: 0.5rem 0 1.5rem;
+  font-size: 0.9rem;
+}
+
+.topnav a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.topnav a:hover {
+  text-decoration: underline;
+}
+
 .tagline {
   margin: 0.1rem 0 1.5rem;
   color: var(--muted);
   font-style: italic;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.flashes {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.flash {
+  border: 1px solid var(--accent);
+  border-radius: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.flash-error {
+  border-color: #b3392c;
+}
+
+.count {
+  color: var(--muted);
+  font-weight: normal;
+  font-size: 0.85em;
+}
+
+.empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.lead-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+.lead-card {
+  border: 1px solid var(--muted);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.lead-card.needs-review {
+  border-color: var(--accent);
+}
+
+.lead-card > a {
+  font-weight: 600;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.lead-card > a:hover {
+  text-decoration: underline;
+}
+
+.lead-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.chip {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.chip-review {
+  background: var(--accent);
+  color: #fff;
+}
+
+.chip-excluded {
+  background: transparent;
+  border: 1px solid #b3392c;
+  color: #b3392c;
+}
+
+.lead-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 32rem;
+}
+
+.lead-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.lead-form input,
+.lead-form select,
+.lead-form textarea {
+  font: inherit;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--muted);
+  border-radius: 0.35rem;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.lead-form button,
+.patrol-actions button {
+  align-self: flex-start;
+  font: inherit;
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.35rem;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.patrol-actions button.danger {
+  background: transparent;
+  color: #b3392c;
+  border-color: #b3392c;
+}
+
+.patrol-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+
+.patrol-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  border: 1px solid var(--muted);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.patrol-item.checked-today {
+  border-color: #2f8f4e;
+}
+
+.patrol-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.notes {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
 }
 
 .counts {

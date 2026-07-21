@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Patrol — Vamp{% endblock %}
+{% block content %}
+  <h2>Daily patrol checklist</h2>
+  <p class="hint">Facebook groups and pages worth a five-minute manual skim. Tap "Checked" once you've looked today.</p>
+
+  <ul class="patrol-list">
+    {% for item in items %}
+      <li class="patrol-item{% if item['last_checked_at'] and item['last_checked_at'][:10] == today %} checked-today{% endif %}">
+        <div>
+          <strong>{{ item['name'] }}</strong>
+          {% if item['url'] %}<a href="{{ item['url'] }}" target="_blank" rel="noopener noreferrer">open</a>{% endif %}
+          {% if item['notes'] %}<p class="notes">{{ item['notes'] }}</p>{% endif %}
+          <p class="meta">
+            {% if item['last_checked_at'] %}last checked {{ item['last_checked_at'] }} UTC{% else %}never checked{% endif %}
+          </p>
+        </div>
+        <div class="patrol-actions">
+          <form method="post" action="{{ url_for('patrol.check_item', item_id=item['id']) }}">
+            <button type="submit">Checked</button>
+          </form>
+          <form method="post" action="{{ url_for('patrol.delete_item', item_id=item['id']) }}"
+                onsubmit="return confirm('Remove this patrol item?');">
+            <button type="submit" class="danger">Delete</button>
+          </form>
+        </div>
+      </li>
+    {% else %}
+      <li class="empty">No patrol items yet — add the first one below.</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Add a patrol item</h3>
+  <form method="post" action="{{ url_for('patrol.create_item') }}" class="lead-form">
+    <label>Name <input type="text" name="name" required></label>
+    <label>URL <input type="url" name="url"></label>
+    <label>Notes <input type="text" name="notes"></label>
+    <button type="submit">Add</button>
+  </form>
+{% endblock %}

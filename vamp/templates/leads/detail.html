@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ lead['title'] }} — Vamp{% endblock %}
+{% block content %}
+  <h2>{{ lead['title'] }}</h2>
+
+  {% if lead['needs_review'] %}
+    <p class="hint">Fetch didn't work (or this came straight from shared text) — finish by hand below.</p>
+  {% endif %}
+
+  {% if lead['state'] == 'excluded' %}
+    <div class="lead-meta">
+      {% for code in (lead['excluded_reason'] or '').split(',') if code %}
+        <span class="chip chip-excluded">{{ reason_chip.get(code, '−' + code) }}</span>
+      {% endfor %}
+    </div>
+    <form method="post" action="{{ url_for('leads.restore', lead_id=lead['id']) }}">
+      <button type="submit">Restore</button>
+    </form>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('leads.update', lead_id=lead['id']) }}" class="lead-form">
+    <label>Title <input type="text" name="title" value="{{ lead['title'] }}" required></label>
+    <label>Org / venue <input type="text" name="org" value="{{ lead['org'] or '' }}"></label>
+    <label>Location <input type="text" name="location" value="{{ lead['location'] or '' }}"></label>
+    <label>URL <input type="url" name="url" value="{{ lead['url'] or '' }}"></label>
+    <label>Event date <input type="text" name="event_date" value="{{ lead['event_date'] or '' }}" placeholder="YYYY-MM-DD"></label>
+    <label>Deadline <input type="text" name="deadline" value="{{ lead['deadline'] or '' }}" placeholder="YYYY-MM-DD"></label>
+    <label>Pay kind
+      <select name="pay_kind">
+        {% for kind in ["unknown", "flat", "hourly", "salary", "tips", "unpaid"] %}
+          <option value="{{ kind }}"{% if lead['pay_kind'] == kind %} selected{% endif %}>{{ kind }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Pay min <input type="number" name="pay_min" value="{{ lead['pay_min'] if lead['pay_min'] is not none else '' }}"></label>
+    <label>Pay max <input type="number" name="pay_max" value="{{ lead['pay_max'] if lead['pay_max'] is not none else '' }}"></label>
+    <label>Description <textarea name="description" rows="8">{{ lead['description'] or '' }}</textarea></label>
+    <button type="submit">Save</button>
+  </form>
+{% endblock %}
