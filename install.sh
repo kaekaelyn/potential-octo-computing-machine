@@ -54,6 +54,17 @@ install_termux() {
 
     log "Enabling and starting the vamp service"
     if command -v sv-enable >/dev/null 2>&1; then
+        # termux-services was potentially just installed moments ago (above) —
+        # its runsvdir supervisor may not be up yet in this shell, which makes
+        # sv-enable/sv up fail with "unable to change to service directory".
+        # Same race the boot script already guards against; mirror it here.
+        local sv_service_dir="$PREFIX/var/service"
+        mkdir -p "$sv_service_dir"
+        if ! pgrep -f "runsvdir $sv_service_dir" >/dev/null 2>&1; then
+            log "runsvdir not running yet — starting it"
+            runsvdir "$sv_service_dir" >> "$HOME/.vamp/runsvdir.log" 2>&1 &
+            sleep 2
+        fi
         sv-enable vamp || warn "sv-enable failed — restart Termux (PATH refresh) and rerun install.sh"
         sv up vamp 2>/dev/null || warn "sv up vamp failed — check 'sv status vamp' after restarting Termux"
     else

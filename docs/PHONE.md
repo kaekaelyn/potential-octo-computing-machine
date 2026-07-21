@@ -131,10 +131,17 @@ portability rule that core behavior always has a non-Termux fallback.
 
 ## Troubleshooting
 
-- **`sv-enable: command not found` right after install** — the
-  `termux-services` package adds shell integration that a running shell
-  won't pick up until it restarts. Close and reopen Termux, then rerun
-  `sv-enable vamp && sv up vamp`.
+- **`sv-enable: command not found` right after install**, or `sv-enable`/
+  `sv up` succeed but `sv status vamp`/`sv up vamp` then report `fail:
+  vamp: unable to change to service directory: file does not exist` —
+  both are the same first-install race: `termux-services` was just
+  installed moments earlier in the same `install.sh` run, and its
+  `runsvdir` supervisor (and/or the current shell's `PATH`) hasn't caught
+  up yet. `install.sh` already starts `runsvdir` itself if it isn't
+  running before calling `sv-enable`/`sv up`, so simply rerunning
+  `./install.sh` fixes it on a re-clone; on an older checkout, close and
+  reopen Termux (picks up the `PATH`/supervisor for good) and rerun
+  `sv-enable vamp && sv up vamp` by hand.
 - **Service enabled but not running** — check
   `~/.vamp/service.log` and `cat $PREFIX/etc/sv/vamp/run` for a stale
   path (e.g. the repo was moved after install; rerun `./install.sh` to
