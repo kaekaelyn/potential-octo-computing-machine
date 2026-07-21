@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Prospects — Vamp{% endblock %}
+{% block content %}
+  <h2>Prospects</h2>
+  <p class="hint">The outbound engine: places that should have live piano, and the pipeline from
+     identified to booked. Kaelyn sends every pitch herself.</p>
+
+  <p class="meta">
+    <a href="{{ url_for('prospects.sprint') }}">This week's Outreach Sprint →</a>
+    &middot; <a href="{{ url_for('prospects.import_form') }}">Import from OpenStreetMap</a>
+  </p>
+
+  <div class="filter-row">
+    <strong>Stage:</strong>
+    <a href="{{ url_for('prospects.board', category=active_category) }}"
+       class="chip {% if not active_status %}chip-ready{% else %}chip-missing{% endif %}">all</a>
+    {% for s in states %}
+      <a href="{{ url_for('prospects.board', status=s, category=active_category) }}"
+         class="chip {% if active_status == s %}chip-ready{% else %}chip-missing{% endif %}">
+        {{ state_labels[s] }} ({{ status_counts.get(s, 0) }})</a>
+    {% endfor %}
+  </div>
+
+  {% if category_counts %}
+  <div class="filter-row">
+    <strong>Category:</strong>
+    <a href="{{ url_for('prospects.board', status=active_status) }}"
+       class="chip {% if not active_category %}chip-ready{% else %}chip-missing{% endif %}">all</a>
+    {% for c in category_counts %}
+      {% if c['category'] %}
+      <a href="{{ url_for('prospects.board', status=active_status, category=c['category']) }}"
+         class="chip {% if active_category == c['category'] %}chip-ready{% else %}chip-missing{% endif %}">
+        {{ c['category'] }} ({{ c['n'] }})</a>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <ul class="lead-list">
+    {% for item in prospects %}
+      {% set p = item.row %}
+      <li class="lead-card{% if not p['verified'] %} needs-review{% endif %}">
+        <a href="{{ url_for('prospects.detail', prospect_id=p['id']) }}">{{ p['name'] }}</a>
+        <div class="lead-meta">
+          <span class="chip chip-missing">{{ state_labels.get(p['status'], p['status']) }}</span>
+          {% if p['category'] %}<span>{{ p['category'] }}</span>{% endif %}
+          {% if p['area'] %}<span>{{ p['area'] }}</span>{% endif %}
+          {% if p['has_piano'] == 1 %}<span class="chip chip-ready">has piano</span>{% endif %}
+          {% if not p['verified'] %}<span class="chip chip-excluded">confirm before pitching</span>{% endif %}
+          {% if item.cooldown %}<span class="chip chip-review">cooldown</span>{% endif %}
+        </div>
+        {% if p['angle'] %}<p class="notes"><em>Angle:</em> {{ p['angle'] }}</p>{% endif %}
+      </li>
+    {% else %}
+      <li class="empty">No prospects match this filter.</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Add a prospect</h3>
+  <form method="post" action="{{ url_for('prospects.create') }}" class="lead-form">
+    <label>Name <input type="text" name="name" required></label>
+    <label>Category
+      <input type="text" name="category" list="category-list" required>
+      <datalist id="category-list">
+        {% for c in categories %}<option value="{{ c }}">{% endfor %}
+      </datalist>
+    </label>
+    <label>Area <input type="text" name="area" placeholder="Edmond, Norman, OKC…"></label>
+    <label>Angle <input type="text" name="angle" placeholder="the one-line reason this pitch lands"></label>
+    <label>Website <input type="url" name="website"></label>
+    <label>Phone <input type="text" name="phone"></label>
+    <label>Email <input type="email" name="email"></label>
+    <label><input type="checkbox" name="has_piano" value="1"> Has a piano</label>
+    <label><input type="checkbox" name="verified"> Verified (details confirmed)</label>
+    <label>Notes <textarea name="notes" rows="2"></textarea></label>
+    <button type="submit">Add prospect</button>
+  </form>
+{% endblock %}

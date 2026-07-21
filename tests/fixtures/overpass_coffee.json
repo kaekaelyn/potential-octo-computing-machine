@@ -1,0 +1,43 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API",
+  "elements": [
+    {
+      "type": "node",
+      "id": 111,
+      "lat": 35.47,
+      "lon": -97.51,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Elemental Coffee Roasters",
+        "addr:housenumber": "815",
+        "addr:street": "N Hudson Ave",
+        "addr:city": "Oklahoma City",
+        "addr:state": "OK",
+        "addr:postcode": "73102",
+        "website": "https://example-elemental.test/",
+        "phone": "+1-405-555-0100"
+      }
+    },
+    {
+      "type": "way",
+      "id": 222,
+      "center": {"lat": 35.65, "lon": -97.48},
+      "tags": {
+        "amenity": "cafe",
+        "name": "Vintage Timber Coffee",
+        "addr:city": "Edmond",
+        "contact:website": "https://example-timber.test/"
+      }
+    },
+    {
+      "type": "node",
+      "id": 333,
+      "lat": 35.22,
+      "lon": -97.44,
+      "tags": {
+        "amenity": "cafe"
+      }
+    }
+  ]
+}

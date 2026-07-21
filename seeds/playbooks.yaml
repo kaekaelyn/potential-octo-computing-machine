@@ -1,0 +1,40 @@
+# seeds/playbooks.yaml — the seven strategy playbooks (PLAN.md §6). Each is a
+# markdown body (in seeds/playbooks/) plus metadata: the stable slug prospects
+# and scene events link to, and the months a seasonal playbook is "active" (the
+# M7 activation reminders read active_months). Bodies are content and refresh
+# from the repo on each load (upsert by slug).
+
+- slug: free-improv-arbitrage
+  title: The Free-Improv Arbitrage
+  body_file: free-improv-arbitrage.md
+  active_months: []
+
+- slug: retirement-circuit
+  title: The Retirement Circuit
+  body_file: retirement-circuit.md
+  active_months: []
+
+- slug: dormant-piano-tour
+  title: The Dormant Piano Tour
+  body_file: dormant-piano-tour.md
+  active_months: []
+
+- slug: sub-list
+  title: The Sub List
+  body_file: sub-list.md
+  active_months: [3, 4, 11, 12]
+
+- slug: planner-play
+  title: The Planner Play
+  body_file: planner-play.md
+  active_months: [1]
+
+- slug: seasonal-campaigns
+  title: Seasonal Campaigns
+  body_file: seasonal-campaigns.md
+  active_months: [9, 10, 1]
+
+- slug: scene-ledger
+  title: The Scene Ledger
+  body_file: scene-ledger.md
+  active_months: []

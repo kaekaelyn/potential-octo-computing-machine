@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Playbooks — Vamp{% endblock %}
+{% block content %}
+  <h2>Strategy playbooks</h2>
+  <p class="hint">Seven ways to manufacture paid piano work in OKC. Each is a written strategy plus
+     the pre-seeded prospects and scene events to execute it.</p>
+
+  <ul class="lead-list">
+    {% for pb in playbooks %}
+      <li class="lead-card{% if pb.active_now %} kit-done{% endif %}">
+        <a href="{{ url_for('playbooks.detail', slug=pb.slug) }}">{{ pb.title }}</a>
+        <div class="lead-meta">
+          {% if pb.prospect_count %}<span class="chip chip-missing">{{ pb.prospect_count }} prospects</span>{% endif %}
+          {% if pb.months %}<span>seasonal: {{ pb.months | join(', ') }}</span>{% endif %}
+          {% if pb.active_now %}<span class="chip chip-ready">active this month</span>{% endif %}
+        </div>
+      </li>
+    {% else %}
+      <li class="empty">No playbooks loaded — run <code>vamp seed</code>.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,0 +1,106 @@
+# seeds/rate_ranges.yaml — researched market rate ranges by gig type (PLAN.md
+# §8). These anchor the rate card and the below-floor chips (M6).
+#
+# IMPORTANT: most published rate data is national/regional, not OKC-specific.
+# Those rows are marked `verified: false` with the benchmark source in `source`
+# and a note to localize before quoting — an honest range beats a fake-precise
+# OKC number. The one genuinely OKC-scoped figure (an aggregate of local pianist
+# bookings) is `verified: true` and labeled as a sanity-check, not a quote.
+# Numbers are USD and were not invented — each traces to the cited source.
+
+- gig_type: Solo pianist — cocktail hour
+  low: 150
+  high: 300
+  unit: hour
+  area: OKC metro
+  source: https://www.moontowerentertainment.com/post/how-much-does-it-cost-to-hire-a-pianist
+  verified: false
+  notes: National benchmark for a solo cocktail/reception hour. Localize before quoting.
+
+- gig_type: Wedding ceremony (solo piano)
+  low: 200
+  high: 500
+  unit: event
+  area: OKC metro
+  source: https://www.weddingwire.com/cost/wedding-ceremony-music
+  verified: false
+  notes: Ceremony-only bookings sit at the low end (~$300 is common); average ceremony music ~$500. Benchmark — confirm locally.
+
+- gig_type: Wedding ceremony + cocktail hour (package)
+  low: 350
+  high: 500
+  unit: event
+  area: OKC metro
+  source: https://www.weddingwire.com/cost/wedding-ceremony-music
+  verified: false
+  notes: Packaging ceremony + cocktail typically ~$400. Benchmark.
+
+- gig_type: Private party / corporate event (solo)
+  low: 200
+  high: 500
+  unit: hour
+  area: OKC metro
+  source: https://liventgroup.com/musician-for-wedding-cost/
+  verified: false
+  notes: Professional solo pianist rates generally start ~$200/hr. Benchmark.
+
+- gig_type: Restaurant / lounge dinner set
+  low: 100
+  high: 200
+  unit: hour
+  area: OKC metro
+  source: https://www.moontowerentertainment.com/post/how-much-does-it-cost-to-hire-a-pianist
+  verified: false
+  notes: Background dinner piano; lower than event rates. Some rooms pay flat per set + tips. Confirm locally.
+
+- gig_type: Retirement / senior-living show
+  low: 75
+  high: 150
+  unit: event
+  area: OKC metro
+  source: null
+  verified: false
+  notes: >-
+    Typical activity-budget range for a 45–60 min senior-living set; NOT sourced
+    to a published figure. Confirm with activity directors on the circuit.
+
+- gig_type: Funeral / memorial service
+  low: 150
+  high: 250
+  unit: service
+  area: OKC metro
+  source: null
+  verified: false
+  notes: Common range for a service pianist; unsourced estimate — confirm with local funeral homes.
+
+- gig_type: Church service sub / accompanist
+  low: 75
+  high: 150
+  unit: service
+  area: OKC metro
+  source: null
+  verified: false
+  notes: Per-service sub/accompanist range; unsourced estimate — varies widely by church size. Confirm.
+
+- gig_type: Dance class accompaniment (institutional)
+  low: 20
+  high: 35
+  unit: hour
+  area: OKC metro
+  source: https://dance.ou.edu/
+  verified: false
+  notes: >-
+    University dance programs staff hourly class accompanists (OU School of Dance
+    confirmed to use live accompaniment). Exact hourly rate NOT published — confirm
+    with each program's HR.
+
+- gig_type: Any pianist booking (OKC aggregate benchmark)
+  low: 29
+  high: 4627
+  unit: event
+  area: OKC metro
+  source: https://www.thebash.com/search/piano-oklahoma-city-ok
+  verified: true
+  notes: >-
+    Aggregate of OKC pianist bookings across all types (avg ~$614). Use as a
+    sanity check on the spread, NOT as a quote for any single gig type.

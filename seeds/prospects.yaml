@@ -1,0 +1,400 @@
+# seeds/prospects.yaml — researched OKC-metro prospects (PLAN.md §6/§12 M4).
+#
+# VERIFICATION CONVENTION (CLAUDE.md hard rule: no fabricated data):
+#   * verified: true   — the place and the fields recorded here were confirmed
+#                        against a public source during the M4 research session
+#                        (July 2026). Websites/addresses/phones below were taken
+#                        verbatim from those sources, never invented.
+#   * verified: false  — the place is plausible/known but was NOT confirmed this
+#                        session, OR a factual detail (e.g. an arts program)
+#                        needs checking. Treated as "confirm before pitching."
+#   * A contact field is left EMPTY whenever it wasn't found. Vamp never invents
+#     a phone number, email, or address to fill a row.
+#
+# `angle` is strategy, not fact — the one-line reason a pitch to THIS place
+# lands. `has_piano` is only true where the piano is evidenced (a piano bar, a
+# dance studio with live accompaniment); left blank (unknown) otherwise.
+
+# ── Piano bars ──────────────────────────────────────────────────────────────
+- name: Michael Murphy's Dueling Piano Bar
+  category: piano bar
+  area: Oklahoma City (Bricktown)
+  address: 119 E California Ave, Oklahoma City, OK
+  website: https://www.murphyspianobar.com/
+  has_piano: true
+  angle: OKC's marquee dueling-piano room on the Bricktown Riverwalk — be known here and ask about fill-in/sub nights.
+  playbook: scene-ledger
+  verified: true
+- name: Malarkey's Dueling Piano Bar
+  category: piano bar
+  area: Oklahoma City
+  angle: A second dueling-piano room in the metro — another door into the OKC piano scene.
+  playbook: scene-ledger
+  verified: false
+
+# ── Hotel lobbies / bars ────────────────────────────────────────────────────
+- name: Skirvin Hilton — Red Piano Lounge
+  category: hotel
+  area: Oklahoma City (Downtown)
+  website: https://skirvinhilton.com/red-piano-lounge/
+  has_piano: true
+  angle: The Red Piano Lounge books local players Tue–Sat off the lobby — target the booking rotation, not a cold start.
+  playbook: scene-ledger
+  verified: true
+  notes: Historic 1911 hotel; live music nightly in the Red Piano Lounge. Already programmed, so pitch to join the roster.
+- name: Colcord Hotel
+  category: hotel
+  area: Oklahoma City (Downtown)
+  angle: Boutique downtown hotel with a lobby bar — confirm whether they own a piano; if so, a cocktail-hour residency could earn.
+  playbook: dormant-piano-tour
+  verified: false
+- name: Bradford House
+  category: hotel
+  area: Oklahoma City (Midtown)
+  angle: Upscale boutique hotel/lounge — a natural fit for a weekend jazz-brunch or cocktail pianist. Confirm piano.
+  playbook: dormant-piano-tour
+  verified: false
+
+# ── Steakhouses / upscale restaurants ───────────────────────────────────────
+- name: Mickey Mantle's Steakhouse
+  category: steakhouse
+  area: Oklahoma City (Bricktown)
+  website: https://mickeymantlesteakhouse.com/
+  angle: Upscale Bricktown steakhouse that already advertises live music — pitch a solo-piano dinner set.
+  playbook: dormant-piano-tour
+  verified: true
+- name: Mahogany Prime Steakhouse
+  category: steakhouse
+  area: Oklahoma City
+  angle: White-tablecloth steakhouse — solo piano raises the room; confirm whether a piano is on site.
+  playbook: dormant-piano-tour
+  verified: false
+- name: Symmetry
+  category: upscale restaurant
+  area: Oklahoma City
+  website: https://symmetrydining.com/
+  angle: Quiet-booth fine dining with strong cocktail program — an elegant match for a low-volume dinner pianist.
+  playbook: dormant-piano-tour
+  verified: true
+- name: Bill's Steakhouse & Saloon
+  category: steakhouse
+  area: Oklahoma City (Southwest)
+  website: https://billssteakhouseandsaloon.com/
+  angle: Steakhouse that already books live music — pitch a piano/vocal night.
+  playbook: dormant-piano-tour
+  verified: true
+- name: The Capital Grille
+  category: steakhouse
+  area: Oklahoma City
+  angle: National fine-dining steakhouse with a 350+ wine list — a cocktail-hour pianist suits the room. Confirm local booking contact.
+  playbook: dormant-piano-tour
+  verified: false
+
+# ── Wineries / breweries ────────────────────────────────────────────────────
+- name: Canadian River Vineyards & Winery
+  category: winery
+  area: Norman (Slaughterville)
+  website: https://canadianriverwinery.net/
+  angle: Winery south of Norman that hosts weddings/events — weekend live music pairs with tastings.
+  playbook: dormant-piano-tour
+  verified: true
+- name: American Solera — Icehouse Project
+  category: brewery
+  area: Edmond
+  angle: Family-friendly Edmond taproom (2nd & Santa Fe) with 16 taps — laid-back solo sets fit the room.
+  playbook: scene-ledger
+  verified: false
+- name: Clauren Ridge Vineyard & Winery
+  category: winery
+  area: Edmond
+  angle: Rustic Edmond vineyard and wedding venue — ceremony/cocktail piano plus tasting-room sets.
+  playbook: planner-play
+  verified: false
+
+# ── Coffee shops ────────────────────────────────────────────────────────────
+- name: Classen Coffee Company
+  category: coffee shop
+  area: Oklahoma City
+  angle: Cozy shop that already hosts intimate shows — an easy first "yes" for originals/improv sets.
+  playbook: scene-ledger
+  verified: false
+
+# ── Listening rooms ─────────────────────────────────────────────────────────
+- name: The Blue Door
+  category: listening room
+  area: Oklahoma City
+  address: 2805 N McKinley Ave, Oklahoma City, OK
+  website: https://www.bluedoorokc.com/
+  angle: Billed as the best listening room in Oklahoma for singer-songwriters — the room where an originals set builds a real audience.
+  playbook: scene-ledger
+  verified: true
+
+# ── Churches (the sub list) ─────────────────────────────────────────────────
+- name: First Presbyterian Church of Oklahoma City
+  category: church
+  area: Oklahoma City (Downtown)
+  address: 127 NW 7th St, Oklahoma City, OK 73102
+  website: https://fpcokc.org/
+  angle: Active music program tied to Canterbury Voices and OCU choirs — a strong worship/accompanist sub contact.
+  playbook: sub-list
+  verified: true
+- name: Crossings Community Church
+  category: church
+  area: Oklahoma City
+  angle: Large multi-service church — big music program means recurring need for subs on keys.
+  playbook: sub-list
+  verified: false
+- name: St. Paul's Episcopal Cathedral
+  category: church
+  area: Oklahoma City (Downtown)
+  angle: Liturgical cathedral music — organ/piano sub and accompanist work for services and choir.
+  playbook: sub-list
+  verified: false
+- name: Life.Church — Oklahoma City
+  category: church
+  area: Oklahoma City
+  website: https://www.life.church/okc/
+  angle: Contemporary multi-site church — band-driven worship with steady sub demand on keys.
+  playbook: sub-list
+  verified: false
+
+# ── Retirement / assisted-living communities (the circuit) ──────────────────
+- name: Saint Ann Retirement Center
+  category: retirement community
+  area: Oklahoma City
+  website: https://www.saintannretirementcenter.com/
+  angle: Activity program explicitly includes music — pitch a monthly standards/sing-along set to the activities director.
+  playbook: retirement-circuit
+  verified: true
+- name: Concordia Life Plan Community
+  category: retirement community
+  area: Oklahoma City
+  website: https://concordiaseniorliving.com/
+  angle: Has a dedicated Life Enrichment Director — the exact role that books monthly entertainment with a real budget.
+  playbook: retirement-circuit
+  verified: true
+- name: The Harrison of Oklahoma City
+  category: retirement community
+  area: Oklahoma City
+  website: https://www.harrisonoklahomacity.com/
+  angle: Assisted living & memory care with a regular events calendar — reliable monthly booking on a rotating route.
+  playbook: retirement-circuit
+  verified: true
+- name: Elison Independent Living of Statesman Club
+  category: retirement community
+  area: Oklahoma City
+  website: https://www.elisonstatesmanclub.com/
+  angle: Lifestyles director plans monthly entertainment — a route stop that funds the income floor.
+  playbook: retirement-circuit
+  verified: true
+- name: Storey Oaks of Oklahoma City
+  category: retirement community
+  area: Oklahoma City
+  angle: Assisted-living community with an activities program — confirm the activities director and pitch a monthly set.
+  playbook: retirement-circuit
+  verified: false
+
+# ── Hospitals with arts programs ────────────────────────────────────────────
+- name: INTEGRIS Health Baptist Medical Center
+  category: hospital
+  area: Oklahoma City
+  angle: Confirm whether the hospital runs an arts-in-medicine / lobby-piano program; many large systems do and pay musicians.
+  playbook: dormant-piano-tour
+  verified: false
+  notes: Arts-program claim UNCONFIRMED — verify before pitching.
+- name: OU Health University of Oklahoma Medical Center
+  category: hospital
+  area: Oklahoma City
+  angle: Large academic medical center — confirm an arts-in-medicine or atrium-music program before pitching.
+  playbook: dormant-piano-tour
+  verified: false
+  notes: Arts-program claim UNCONFIRMED — verify before pitching.
+
+# ── Wedding venues & planners (the planner play) ────────────────────────────
+- name: Aisle Be With You
+  category: wedding planner
+  area: Edmond
+  website: https://www.aislebewithyouweddings.com/
+  angle: Repeat-referrer planner serving the OKC metro — pitch the planner, not the couples.
+  playbook: planner-play
+  verified: true
+- name: Completely Coordinated
+  category: wedding planner
+  area: Edmond
+  angle: Day-of coordination across the OKC area — coordinators hand ceremony music to musicians they trust.
+  playbook: planner-play
+  verified: false
+- name: Gather Together Weddings & Events
+  category: wedding planner
+  area: Edmond
+  angle: Full-service coordination — one good relationship here recurs across every wedding they book.
+  playbook: planner-play
+  verified: false
+- name: Cultivate Event Planning
+  category: wedding planner
+  area: Oklahoma City
+  angle: OKC wedding planning team — a referral partner worth tracking as a person, not a one-off.
+  playbook: planner-play
+  verified: false
+- name: Gibson Events
+  category: event planner
+  area: Oklahoma City
+  angle: Event design/production company — corporate + wedding work means repeat cocktail/ceremony bookings.
+  playbook: planner-play
+  verified: false
+- name: Gaillardia Country Club — Events
+  category: wedding venue
+  area: Oklahoma City
+  website: https://gaillardiacountryclubevents.com/
+  angle: Hosts hundreds of weddings/events a year with an in-house events team — become their go-to ceremony/cocktail pianist.
+  playbook: planner-play
+  verified: true
+
+# ── Funeral homes ───────────────────────────────────────────────────────────
+- name: Hahn-Cook/Street & Draper Funeral Directors
+  category: funeral home
+  area: Oklahoma City
+  angle: Long-established funeral home (since 1916) — families regularly need a pianist for services; offer a reliable on-call option.
+  playbook: sub-list
+  verified: false
+
+# ── Galleries ───────────────────────────────────────────────────────────────
+- name: Paseo Arts Association
+  category: gallery
+  area: Oklahoma City (Paseo Arts District)
+  website: https://www.thepaaok.org/
+  angle: Runs First Friday for 25+ galleries — ambient improv is the perfect fit for openings; pitch the association and member galleries.
+  playbook: free-improv-arbitrage
+  verified: true
+
+# ── Museums ─────────────────────────────────────────────────────────────────
+- name: Oklahoma City Museum of Art
+  category: museum
+  area: Oklahoma City (Downtown)
+  website: https://www.okcmoa.com/events/
+  angle: Runs a public events/film program — pitch live piano scoring for a member evening or gallery event.
+  playbook: free-improv-arbitrage
+  verified: true
+- name: First Americans Museum
+  category: museum
+  area: Oklahoma City (Horizons District)
+  website: https://famok.org/
+  angle: 200-seat FAM Theater programs live music — a venue that books concerts and event scoring.
+  playbook: free-improv-arbitrage
+  verified: true
+
+# ── Country clubs ───────────────────────────────────────────────────────────
+- name: Oak Tree Country Club
+  category: country club
+  area: Edmond
+  angle: 36-hole club with banquet facilities — member events and weddings need cocktail/ceremony piano. Confirm events contact.
+  playbook: dormant-piano-tour
+  verified: false
+- name: Quail Creek Golf and Country Club
+  category: country club
+  area: Oklahoma City
+  angle: Full catering + in-house wedding planning — a venue that can hand you repeat event work.
+  playbook: planner-play
+  verified: false
+- name: Oklahoma City Golf & Country Club
+  category: country club
+  area: Nichols Hills
+  angle: Prestige Nichols Hills club with formal dining — confirm whether a piano is in the dining room; if so, a standing dinner set fits.
+  playbook: dormant-piano-tour
+  verified: false
+
+# ── Theaters ────────────────────────────────────────────────────────────────
+- name: Lyric Theatre of Oklahoma
+  category: theater
+  area: Oklahoma City
+  website: https://lyrictheatreokc.com/
+  angle: Broadway-caliber company (Plaza + Civic Center) — rehearsal pianist / sub keyboard and underscoring work.
+  playbook: free-improv-arbitrage
+  verified: true
+- name: Carpenter Square Theatre
+  category: theater
+  area: Oklahoma City (Downtown)
+  website: https://www.carpentersquare.com/
+  angle: Intimate 120-seat company producing contemporary plays — live underscoring and incidental piano.
+  playbook: free-improv-arbitrage
+  verified: true
+- name: Jewel Box Theatre
+  category: theater
+  area: Oklahoma City
+  angle: Oklahoma's longest-operating community theater (six shows/year) — pit/keyboard and rehearsal-accompanist work.
+  playbook: free-improv-arbitrage
+  verified: false
+- name: Civic Center Music Hall
+  category: theater
+  area: Oklahoma City (Downtown)
+  website: https://www.okcciviccenter.com/
+  angle: Home to ballet, Broadway tours and musical attractions — a hub worth being known at for pit/sub calls.
+  playbook: free-improv-arbitrage
+  verified: true
+
+# ── University dance departments & dance studios (free-improv arbitrage) ─────
+- name: University of Oklahoma School of Dance
+  category: university dance department
+  area: Norman
+  website: https://dance.ou.edu/
+  has_piano: true
+  angle: Provides LIVE accompaniment for all technique classes and staffs multiple accompanists — steady, chronically-undersupplied improv work.
+  playbook: free-improv-arbitrage
+  verified: true
+  notes: Confirmed uses live class accompaniment; the flagship free-improv-arbitrage prospect.
+- name: UCO Department of Dance
+  category: university dance department
+  area: Edmond
+  website: https://www.uco.edu/cfad/academics/dance/
+  angle: Ballet/modern/jazz training program (Kaleidoscope Dance Company) — pitch improvising class accompaniment.
+  playbook: free-improv-arbitrage
+  verified: true
+- name: Oklahoma City University — Dance Performance
+  category: university dance department
+  area: Oklahoma City
+  website: https://www.okcu.edu/programs/dance-performance
+  angle: Ten levels of ballet/jazz/tap — a large program that needs technique-class accompanists.
+  playbook: free-improv-arbitrage
+  verified: true
+
+# ── Improv / comedy theaters ────────────────────────────────────────────────
+- name: OKC Improv
+  category: improv/comedy theater
+  area: Oklahoma City (Plaza District)
+  address: 1757 NW 16th St, Oklahoma City, OK 73106
+  phone: "(405) 456-9858"
+  website: https://www.okcimprov.com/
+  angle: Weekly Fri/Sat improv shows — live musical accompaniment (musical improv) is a rare, exactly-fitting free-improv skill.
+  playbook: free-improv-arbitrage
+  verified: true
+
+# ── Yoga studios / sound baths (free-improv arbitrage) ──────────────────────
+- name: The Yoga Spa
+  category: yoga studio
+  area: Edmond
+  phone: "405-562-3590"
+  website: https://theyogaspaedmond.com/
+  angle: Runs a Floating Sound Bath with singing bowls/gongs — live piano/keys underscoring fits the format.
+  playbook: free-improv-arbitrage
+  verified: true
+- name: This Land Yoga
+  category: yoga studio
+  area: Oklahoma City (Paseo)
+  website: https://www.thislandyoga.com/
+  angle: Schedule already includes sound healing and restorative classes — pitch live ambient improv for special sessions.
+  playbook: free-improv-arbitrage
+  verified: true
+- name: Sound Bath Studio OKC
+  category: yoga studio
+  area: Oklahoma City
+  website: https://soundbathstudiookc.com/
+  angle: Dedicated sound-healing studio — a venue built around exactly the live-music-for-meditation market.
+  playbook: free-improv-arbitrage
+  verified: true
+- name: 3rd Street Yoga Studio
+  category: yoga studio
+  area: Edmond
+  website: https://www.3rdstreetyogastudio.com/
+  angle: Hosts monthly sound baths and special events — live improv for a sound bath is an easy pilot booking.
+  playbook: free-improv-arbitrage
+  verified: true

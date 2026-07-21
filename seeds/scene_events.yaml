@@ -1,0 +1,109 @@
+# seeds/scene_events.yaml — the OKC scene calendar (PLAN.md §7) plus the
+# festival + competition deadline calendar (PLAN.md §3/§6). One table, split by
+# `kind`: recurring events, festivals, and competitions all ride here; the
+# cadence engine (next-date computation) lands in M6.
+#
+# `cadence` is a small structured recurrence the M6 engine will read. Facts
+# below were checked in the M4 research session (July 2026); where a date/night
+# could not be confirmed this session it is flagged in `notes` ("confirm ...").
+# No event, venue, or date is invented.
+
+# ── Recurring scene events (where to be) ────────────────────────────────────
+- name: First Friday Gallery Walk (Paseo Arts District)
+  kind: art_walk
+  venue: Paseo Arts District
+  area: Oklahoma City
+  url: https://www.thepaseo.org/paseo-first-friday-gallery-walk
+  cadence: {freq: monthly, week: 1, weekday: friday, start: "18:00", end: "21:00"}
+  playbook: scene-ledger
+  notes: >-
+    First Friday every month, 6–9pm, 25+ galleries + live music. Ambient improv
+    fits gallery openings (free-improv-arbitrage) and it's where the scene meets.
+- name: Blue Note Lounge Open Mic
+  kind: open_mic
+  venue: Blue Note Lounge
+  area: Oklahoma City
+  url: https://www.openmicoklahomacity.com/
+  cadence: {freq: weekly, weekday: null, time: null}
+  playbook: scene-ledger
+  notes: >-
+    Listed OKC open mic (2408 N Robinson Ave). Confirm current night/host on
+    openmicoklahomacity.com before relying on it.
+- name: JJ's Alley Open Mic
+  kind: open_mic
+  venue: JJ's Alley
+  area: Oklahoma City (Bricktown)
+  url: https://www.openmicoklahomacity.com/
+  cadence: {freq: weekly, weekday: null, time: null}
+  playbook: scene-ledger
+  notes: Music-focused Bricktown bar with a regular open mic. Confirm night before going.
+
+# ── Festivals + application windows ─────────────────────────────────────────
+- name: Festival of the Arts (Downtown OKC)
+  kind: festival
+  venue: Bicentennial Park / Downtown
+  area: Oklahoma City
+  url: https://www.zapplication.org/event-info.php?ID=14198
+  cadence: {freq: annual, month: 4, apply_via: "Arts Council OKC / ZAPPlication"}
+  playbook: scene-ledger
+  notes: >-
+    Arts Council OKC's flagship festival, late April; performing-arts stages book
+    musicians separately from the visual-art booths. Confirm the current
+    performer-application window with Arts Council OKC.
+- name: Downtown Edmond Arts Festival
+  kind: festival
+  venue: Downtown Edmond
+  area: Edmond
+  url: https://downtownedmondok.com/downtown-edmond-arts-festival/
+  cadence: {freq: annual, month: 5, typical_days: "1-3"}
+  playbook: scene-ledger
+  notes: 48th annual was May 1–3, 2026. Confirm 2027 dates + any performer application.
+- name: Norman Arts Festival
+  kind: festival
+  venue: Andrews Park
+  area: Norman
+  url: https://normanartsfestival.org/
+  cadence: {freq: annual, month: 5}
+  playbook: scene-ledger
+  notes: Inaugural festival was May 16–17, 2026 at Andrews Park. 2027 pre-registration pending.
+
+# ── Competition deadline calendar (stepping stones) ─────────────────────────
+- name: Kerrville New Folk Competition
+  kind: competition
+  venue: Kerrville Folk Festival (TX)
+  area: national
+  url: https://www.kerrvillefolkfestival.org/new-folk-competition/
+  cadence: {freq: annual, apply_opens: "01-02", apply_closes: "03-02"}
+  playbook: scene-ledger
+  notes: >-
+    Emerging-songwriter competition since 1973 (Lovett, Griffith, Earle alumni).
+    2026 window: entries opened Jan 2, deadline Mar 2. Dates shift slightly yearly —
+    confirm each January.
+- name: John Lennon Songwriting Contest
+  kind: competition
+  venue: Online (international)
+  area: national
+  url: https://www.jlsc.com/
+  cadence: {freq: annual, apply_opens: "02-17", apply_closes: "06-30", session: "I"}
+  playbook: scene-ledger
+  notes: >-
+    Twelve genre categories incl. folk; Session I 2026 ran Feb 17 – Jun 30.
+    Confirm current session dates on jlsc.com.
+- name: American Songwriter Lyric Contest
+  kind: competition
+  venue: Online
+  area: national
+  url: https://americansongwriter.com/
+  cadence: {freq: bimonthly}
+  playbook: scene-ledger
+  notes: Bi-monthly lyric contest — a low-effort recurring stepping stone. Confirm current cycle deadline.
+- name: USA Songwriting Competition
+  kind: competition
+  venue: Online (international)
+  area: national
+  url: https://www.songwriting.net/
+  cadence: {freq: annual}
+  playbook: scene-ledger
+  notes: >-
+    Annual multi-genre competition; exact deadline NOT confirmed this session —
+    verify on songwriting.net before relying on a date.

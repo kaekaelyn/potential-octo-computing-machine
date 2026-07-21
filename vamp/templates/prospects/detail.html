@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}{{ p['name'] }} — Vamp{% endblock %}
+{% block content %}
+  <p class="meta"><a href="{{ url_for('prospects.board') }}">← Prospects</a></p>
+  <h2>{{ p['name'] }}</h2>
+
+  <div class="lead-meta">
+    <span class="chip chip-missing">{{ state_labels.get(p['status'], p['status']) }}</span>
+    {% if p['category'] %}<span>{{ p['category'] }}</span>{% endif %}
+    {% if p['area'] %}<span>{{ p['area'] }}</span>{% endif %}
+    {% if p['has_piano'] == 1 %}<span class="chip chip-ready">has piano</span>{% endif %}
+    {% if p['verified'] %}<span class="chip chip-ready">verified</span>
+    {% else %}<span class="chip chip-excluded">confirm before pitching</span>{% endif %}
+    {% if in_cooldown %}<span class="chip chip-review">in cooldown ({{ cooldown_days }}d)</span>{% endif %}
+  </div>
+
+  {% if p['angle'] %}<p><strong>Angle:</strong> {{ p['angle'] }}</p>{% endif %}
+  {% if playbook %}
+    <p class="meta">Playbook: <a href="{{ url_for('playbooks.detail', slug=playbook['slug']) }}">{{ playbook['title'] }}</a></p>
+  {% endif %}
+
+  <dl class="counts">
+    {% if p['website'] %}<div><dt>Website</dt><dd><a href="{{ p['website'] }}" target="_blank" rel="noopener noreferrer">open</a></dd></div>{% endif %}
+    {% if p['phone'] %}<div><dt>Phone</dt><dd>{{ p['phone'] }}</dd></div>{% endif %}
+    {% if p['email'] %}<div><dt>Email</dt><dd>{{ p['email'] }}</dd></div>{% endif %}
+    {% if p['address'] %}<div><dt>Address</dt><dd>{{ p['address'] }}</dd></div>{% endif %}
+  </dl>
+  {% if p['notes'] %}<p class="notes">{{ p['notes'] }}</p>{% endif %}
+
+  <h3>Pipeline</h3>
+  <div class="pipeline-actions">
+    {% if next_state %}
+      <form method="post" action="{{ url_for('prospects.advance', prospect_id=p['id']) }}">
+        <button type="submit">Advance → {{ state_labels[next_state] }}</button>
+      </form>
+    {% endif %}
+    <form method="post" action="{{ url_for('prospects.set_status', prospect_id=p['id']) }}">
+      <label>Set stage
+        <select name="status">
+          {% for s in states %}
+            <option value="{{ s }}"{% if s == p['status'] %} selected{% endif %}>{{ state_labels[s] }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button type="submit">Set</button>
+    </form>
+  </div>
+
+  {% if follow_ups %}
+    <h3>Scheduled follow-ups</h3>
+    <ul class="checklist">
+      {% for r in follow_ups %}
+        <li class="checklist-item{% if r['done'] %} kit-done{% endif %}">
+          <span>{{ r['message'] }}</span>
+          <span class="meta">due {{ r['due_at'] }} UTC{% if r['done'] %} · done{% endif %}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <h3>Log a touch</h3>
+  <p class="hint">Record what you already did by hand — logging a pitch or follow-up arms the +7d/+21d cadence.</p>
+  <form method="post" action="{{ url_for('prospects.touch', prospect_id=p['id']) }}" class="lead-form">
+    <label>Channel
+      <select name="channel">
+        <option value="email">email</option>
+        <option value="phone">phone</option>
+        <option value="in_person">in person</option>
+        <option value="social">social / DM</option>
+        <option value="other">other</option>
+      </select>
+    </label>
+    <label>Summary <input type="text" name="summary" placeholder="Sent pitch about the lobby grand"></label>
+    <label>Outcome <input type="text" name="outcome" placeholder="awaiting reply / booked / no thanks"></label>
+    <label><input type="checkbox" name="schedule_follow_ups" value="on" checked> Schedule +7d / +21d follow-ups</label>
+    <button type="submit">Log touch</button>
+  </form>
+
+  {% if touches %}
+    <h3>Touches log</h3>
+    <ul class="lead-list">
+      {% for t in touches %}
+        <li class="lead-card">
+          <div class="lead-meta">
+            <span class="meta">{{ t['ts'] }} UTC</span>
+            {% if t['channel'] %}<span class="chip chip-missing">{{ t['channel'] }}</span>{% endif %}
+            {% if t['outcome'] %}<span>{{ t['outcome'] }}</span>{% endif %}
+          </div>
+          {% if t['summary'] %}<p class="notes">{{ t['summary'] }}</p>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <h3>Edit prospect</h3>
+  <form method="post" action="{{ url_for('prospects.edit', prospect_id=p['id']) }}" class="lead-form">
+    <label>Name <input type="text" name="name" value="{{ p['name'] }}" required></label>
+    <label>Category <input type="text" name="category" value="{{ p['category'] or '' }}" required></label>
+    <label>Area <input type="text" name="area" value="{{ p['area'] or '' }}"></label>
+    <label>Angle <input type="text" name="angle" value="{{ p['angle'] or '' }}"></label>
+    <label>Address <input type="text" name="address" value="{{ p['address'] or '' }}"></label>
+    <label>Phone <input type="text" name="phone" value="{{ p['phone'] or '' }}"></label>
+    <label>Email <input type="email" name="email" value="{{ p['email'] or '' }}"></label>
+    <label>Website <input type="url" name="website" value="{{ p['website'] or '' }}"></label>
+    <label>Playbook slug <input type="text" name="playbook" value="{{ p['playbook'] or '' }}"></label>
+    <label>Cooldown days (blank = default) <input type="number" name="cooldown_days" value="{{ p['cooldown_days'] if p['cooldown_days'] is not none else '' }}"></label>
+    <label><input type="checkbox" name="has_piano" value="1"{% if p['has_piano'] == 1 %} checked{% endif %}> Has a piano</label>
+    <label><input type="checkbox" name="verified"{% if p['verified'] %} checked{% endif %}> Verified</label>
+    <label>Notes <textarea name="notes" rows="3">{{ p['notes'] or '' }}</textarea></label>
+    <button type="submit">Save changes</button>
+  </form>
+
+  <form method="post" action="{{ url_for('prospects.delete', prospect_id=p['id']) }}"
+        onsubmit="return confirm('Remove this prospect?');" style="margin-top:1rem;">
+    <button type="submit" class="danger">Delete prospect</button>
+  </form>
+{% endblock %}

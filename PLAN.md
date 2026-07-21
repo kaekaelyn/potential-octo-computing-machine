@@ -426,11 +426,18 @@ repertoire_items(id, title, artist, occasions, notes, updated_at)
     -- other asset (vamp/vault/repertoire.py)
 prospects(id, name, category, area, address, phone, email, website,
           socials_json, has_piano, angle, status, source, verified,
-          notes, last_touch_at, next_touch_at)
+          notes, last_touch_at, next_touch_at,
+          cooldown_days, playbook)  -- cooldown/playbook added M4, migration 0005
 touches(id, prospect_id, ts, channel, summary, outcome)
 people(id, name, role, org, met_at, contact_json, notes)
 referrals(id, person_id, gig_id)
-scene_events(id, name, cadence_json, venue, area, url, kind, notes, going)
+scene_events(id, name, cadence_json, venue, area, url, kind, notes, going,
+             playbook)             -- playbook added M4, migration 0005; kind
+                                   -- includes 'competition'/'festival' so the
+                                   -- deadline calendar (§3/§6) rides this table
+rate_ranges(id, gig_type, low, high, unit, area, notes, source, verified)
+                                   -- M4, migration 0005: researched OKC-market
+                                   -- rate ranges by gig type (§8)
 patrol_items(id, name, url, notes, last_checked_at)
 gigs(id, prospect_id, lead_id, date, venue, pay_agreed, pay_received,
      expenses, mileage, state, notes)
