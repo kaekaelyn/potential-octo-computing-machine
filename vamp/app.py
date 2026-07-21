@@ -32,23 +32,31 @@ def create_app(config: Config | None = None, *, catchup_sync: bool = False) -> F
 
     from .ai.routes import bp as ai_bp
     from .capture.routes import bp as capture_bp
+    from .gigs.routes import bp as gigs_bp
     from .kit.routes import bp as kit_bp
     from .leads.routes import bp as leads_bp
     from .patrol.routes import bp as patrol_bp
+    from .people.routes import bp as people_bp
     from .playbooks.routes import bp as playbooks_bp
     from .profile.routes import bp as profile_bp
     from .prospects.routes import bp as prospects_bp
+    from .reminders.routes import bp as reminders_bp
+    from .scene.routes import bp as scene_bp
     from .sources.routes import bp as sources_bp
     from .vault.routes import bp as vault_bp
 
     app.register_blueprint(ai_bp)
     app.register_blueprint(capture_bp)
+    app.register_blueprint(gigs_bp)
     app.register_blueprint(kit_bp)
     app.register_blueprint(leads_bp)
     app.register_blueprint(patrol_bp)
+    app.register_blueprint(people_bp)
     app.register_blueprint(playbooks_bp)
     app.register_blueprint(profile_bp)
     app.register_blueprint(prospects_bp)
+    app.register_blueprint(reminders_bp)
+    app.register_blueprint(scene_bp)
     app.register_blueprint(sources_bp)
     app.register_blueprint(vault_bp)
 
