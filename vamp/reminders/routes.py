@@ -1,7 +1,7 @@
-"""Consolidated reminders page (PLAN.md §7/§12 M6): prospect follow-ups
-(M4), gig chase-unpaid reminders, and scene-event "met anyone?" recap
-prompts (both M6), all surfaced in one place instead of needing their own
-page to be noticed."""
+"""Consolidated reminders page (PLAN.md §7/§12 M6/M7): prospect follow-ups
+(M4), gig chase-unpaid reminders and scene-event "met anyone?" recap
+prompts (M6), and seasonal playbook activation reminders (M7), all
+surfaced in one place instead of needing their own page to be noticed."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from flask import Blueprint, current_app, redirect, render_template, url_for
 
 from vamp import db as vamp_db
 from vamp.gigs.pipeline import CHASE_UNPAID_REF_KIND
+from vamp.playbooks.activation import PLAYBOOK_ACTIVATION_REF_KIND, sync_activation_reminders
 from vamp.prospects.cadence import FOLLOW_UP_REF_KIND, naive_utc_now
 from vamp.scene.service import RECAP_REF_KIND, sync_recap_reminders
 
@@ -46,6 +47,16 @@ def _describe(conn, row) -> dict | None:
         if event is None:
             return None
         return {"label": f"Met anyone at {event['name']}?", "link": url_for("scene.list_events")}
+    if ref_kind == PLAYBOOK_ACTIVATION_REF_KIND:
+        playbook = conn.execute(
+            "SELECT id, slug, title FROM playbooks WHERE id = ?", (ref_id,)
+        ).fetchone()
+        if playbook is None:
+            return None
+        return {
+            "label": f"{playbook['title']} is active this month",
+            "link": url_for("playbooks.detail", slug=playbook["slug"]),
+        }
     return {"label": row["message"] or ref_kind, "link": None}
 
 
@@ -54,6 +65,7 @@ def list_reminders():
     conn = _conn()
     try:
         sync_recap_reminders(conn)
+        sync_activation_reminders(conn)
         rows = conn.execute("SELECT * FROM reminders WHERE done = 0 ORDER BY due_at ASC").fetchall()
         items = []
         for row in rows:
