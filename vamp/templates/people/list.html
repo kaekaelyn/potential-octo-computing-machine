@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}People — Vamp{% endblock %}
+{% block content %}
+  <h2>People</h2>
+  <p class="hint">The lightweight CRM: who you met, where, and which gigs they referred —
+     referrals are the metric that matters (PLAN.md §7).</p>
+
+  <ul class="lead-list">
+    {% for p in people %}
+      <li class="lead-card">
+        <a href="{{ url_for('people.detail', person_id=p['id']) }}">{{ p['name'] }}</a>
+        <div class="lead-meta">
+          {% if p['role'] %}<span>{{ p['role'] }}</span>{% endif %}
+          {% if p['org'] %}<span>{{ p['org'] }}</span>{% endif %}
+          {% if p['met_at'] %}<span class="meta">met {{ p['met_at'] }}</span>{% endif %}
+          {% if referral_counts.get(p['id']) %}
+            <span class="chip chip-ready">{{ referral_counts[p['id']] }} referral{{ 's' if referral_counts[p['id']] != 1 else '' }}</span>
+          {% endif %}
+        </div>
+      </li>
+    {% else %}
+      <li class="empty">No one logged yet — add someone after a scene event or a gig.</li>
+    {% endfor %}
+  </ul>
+
+  <h3>Add a person</h3>
+  <form method="post" action="{{ url_for('people.create') }}" class="lead-form">
+    <label>Name <input type="text" name="name" required></label>
+    <label>Role <input type="text" name="role" placeholder="booker / worship leader / planner / musician"></label>
+    <label>Org <input type="text" name="org"></label>
+    <label>Where met <input type="text" name="met_at"></label>
+    <label>Phone <input type="text" name="phone"></label>
+    <label>Email <input type="email" name="email"></label>
+    <label>Notes <textarea name="notes" rows="2"></textarea></label>
+    <button type="submit">Add person</button>
+  </form>
+{% endblock %}
