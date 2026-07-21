@@ -48,7 +48,7 @@ def test_migrate_is_idempotent(tmp_path: Path):
     conn = vamp_db.get_connection(db_path)
     try:
         applied = vamp_db.applied_migrations(conn)
-        assert applied == {"0001_init.sql"}
+        assert applied == {"0001_init.sql", "0002_capture_fields.sql"}
     finally:
         conn.close()
 

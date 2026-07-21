@@ -16,4 +16,5 @@ Runs entirely on an Android phone under [Termux](https://termux.dev/) —
 the phone is both server and client. No cloud, no accounts, no telemetry,
 no auto-sending anything, ever.
 
-Status: planning complete; implementation starts at M0.
+Status: M0 (skeleton) and M1 (capture + leads inbox) complete. Daily-usable
+from here — share a post to Vamp, work the inbox, run the patrol checklist.

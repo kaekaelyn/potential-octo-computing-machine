@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Capture — Vamp{% endblock %}
+{% block content %}
+  <h2>Capture a lead</h2>
+  <p class="hint">Paste a URL, paste some text (or both) — Vamp fetches and parses what it can.
+     If fetching fails (Facebook often blocks it), the text becomes a finish-by-hand lead instead
+     of an error.</p>
+
+  <form method="post" action="{{ url_for('capture.submit') }}" class="lead-form">
+    <label>URL <input type="url" name="url" placeholder="https://..."></label>
+    <label>Text <textarea name="text" rows="6" placeholder="Paste the post/caption text here"></textarea></label>
+    <button type="submit">Capture</button>
+  </form>
+{% endblock %}

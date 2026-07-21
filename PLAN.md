@@ -405,11 +405,15 @@ AI features, priority order:
 ```
 sources(id, kind, name, config_json, enabled, last_fetch_at, last_error)
 leads(id, source_id, kind,           -- gig|job|competition|open_mic|showcase|other
-      dedupe_hash, url, title, org, location, pay_min, pay_max,
+      dedupe_hash,                   -- fuzzy (org, title, event_date) key
+      url_hash,                      -- canonical-URL key (M1, migration 0002)
+      url, title, org, location, pay_min, pay_max,
       pay_kind,                      -- flat|hourly|salary|tips|unpaid|unknown
       deadline, event_date, description, posted_at, first_seen_at,
       state,                         -- inbox|interested|preparing|applied|booked|passed|excluded
-      excluded_reason, raw_json)
+      excluded_reason,               -- comma-separated reason codes
+      needs_review,                  -- capture fetch failed; finish-by-hand form (M1)
+      raw_json)
 requirements(id, lead_id, kind, detail, satisfied_asset_id)
 assets(id, kind, name, path_or_url, tags, updated_at, ready)
 kit_tasks(id, ord, title, detail, asset_kind, state)

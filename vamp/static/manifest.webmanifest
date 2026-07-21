@@ -1,0 +1,28 @@
+{
+  "name": "Vamp",
+  "short_name": "Vamp",
+  "description": "Local-first copilot for finding and manufacturing paid musician work in OKC.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#6b4fa0",
+  "icons": [
+    {
+      "src": "/static/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "share_target": {
+    "action": "/capture/share",
+    "method": "POST",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
