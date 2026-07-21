@@ -65,16 +65,24 @@ fill anything in.)
 3. Installs `termux-services` and `termux-api` (via `pkg`) if the
    `sv-enable`/`termux-wake-lock` commands aren't already on `PATH`.
 4. Writes a [runit](http://smarden.org/runit/) service definition to
-   `$PREFIX/etc/sv/vamp/run` (rendered from
+   `$PREFIX/var/service/vamp/run` (rendered from
    `termux/service-run.template`) that: `cd`s into the repo, takes a
    `termux-wake-lock`, and `exec`s `.venv/bin/python -m vamp.wsgi` —
    logging to `~/.vamp/service.log`. `exec` (not a backgrounded
    subprocess) is required: runit supervises the service's own PID, and
-   a script that daemonizes/forks breaks that contract.
-5. Runs `sv-enable vamp`, which (per termux-services' Void-Linux-style
-   layout) symlinks `$PREFIX/etc/sv/vamp` into `$PREFIX/var/service`,
-   the directory `runsvdir` watches — this both starts the service now
-   and marks it to persist across `sv` restarts. Then `sv up vamp`.
+   a script that daemonizes/forks breaks that contract. Unlike vanilla/
+   Void-Linux runit, `termux-services` has no `/etc/sv` staging directory
+   or symlink step — `$PREFIX/var/service` (`$SVDIR`) is where
+   `runsvdir` watches *and* where a service's own directory has to live;
+   an earlier version of this script wrote to `$PREFIX/etc/sv/vamp`
+   assuming something would symlink it into place, which nothing did,
+   so `sv-enable`/`sv up`/`sv status` always failed with "unable to
+   change to service directory: file does not exist". `install.sh`
+   cleans up that stale location if it finds it.
+5. Runs `sv-enable vamp` (termux-services' own script: `rm -f
+   $SVDIR/vamp/down; sv up vamp` — clears the "stay stopped" marker, if
+   any, and starts it), which both starts the service now and marks it
+   to persist across `sv` restarts.
 6. Writes `~/.termux/boot/start-vamp.sh` (rendered from
    `termux/boot-start.template`), which Termux:Boot runs on every device
    boot. Boot scripts don't run as a login shell, so
@@ -131,21 +139,25 @@ portability rule that core behavior always has a non-Termux fallback.
 
 ## Troubleshooting
 
-- **`sv-enable: command not found` right after install**, or `sv-enable`/
-  `sv up` succeed but `sv status vamp`/`sv up vamp` then report `fail:
-  vamp: unable to change to service directory: file does not exist` —
-  both are the same first-install race: `termux-services` was just
-  installed moments earlier in the same `install.sh` run, and its
-  `runsvdir` supervisor (and/or the current shell's `PATH`) hasn't caught
-  up yet. `install.sh` already starts `runsvdir` itself if it isn't
-  running before calling `sv-enable`/`sv up`, so simply rerunning
-  `./install.sh` fixes it on a re-clone; on an older checkout, close and
-  reopen Termux (picks up the `PATH`/supervisor for good) and rerun
-  `sv-enable vamp && sv up vamp` by hand.
-- **Service enabled but not running** — check
-  `~/.vamp/service.log` and `cat $PREFIX/etc/sv/vamp/run` for a stale
-  path (e.g. the repo was moved after install; rerun `./install.sh` to
-  regenerate the run script with the current path).
+- **`sv status vamp`/`sv up vamp` report `fail: vamp: unable to change to
+  service directory: file does not exist`** — if you're on a checkout from
+  before this was fixed, `install.sh` wrote the service to
+  `$PREFIX/etc/sv/vamp` and expected `sv-enable` to symlink it into
+  `$PREFIX/var/service`; `termux-services`' real `sv-enable` doesn't do
+  that (it's just `rm -f $SVDIR/vamp/down; sv up vamp`), so
+  `$PREFIX/var/service/vamp` never existed and every `sv` command against
+  it failed, deterministically, no matter how many times you retried or
+  restarted Termux. `git pull && ./install.sh` fixes it — the current
+  script writes directly to `$PREFIX/var/service/vamp` (where `SVDIR`
+  actually expects it) and cleans up the stale `etc/sv` location.
+- **`sv-enable: command not found` right after install** — the
+  `termux-services` package adds shell integration that a running shell
+  won't pick up until it restarts. Close and reopen Termux, then rerun
+  `sv-enable vamp && sv up vamp`.
+- **Service enabled but not running (and the directory is correct)** —
+  check `~/.vamp/service.log` and `cat $PREFIX/var/service/vamp/run` for
+  a stale path (e.g. the repo was moved after install; rerun
+  `./install.sh` to regenerate the run script with the current path).
 - **Nothing starts after a reboot** — confirm Termux:Boot is installed
   *and was opened at least once*, and that Termux is exempt from battery
   optimization (Android can silently prevent boot receivers from firing

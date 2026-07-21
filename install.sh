@@ -41,7 +41,16 @@ install_termux() {
         pkg install -y termux-services termux-api
     fi
 
-    local sv_dir="$PREFIX/etc/sv/vamp"
+    # termux-services' own sv-enable is just `rm -f "$SVDIR/$1/down"; sv up $1`
+    # (SVDIR = $PREFIX/var/service) — unlike vanilla/Void-Linux runit, nothing
+    # symlinks a staging directory into place for you. The service's own
+    # directory (with its `run` script) has to already live directly under
+    # $SVDIR, or every sv-enable/sv up/sv status fails with "unable to change
+    # to service directory: file does not exist", deterministically, every
+    # time — not a timing issue.
+    local svdir="$PREFIX/var/service"
+    local sv_dir="$svdir/vamp"
+    rm -rf "$PREFIX/etc/sv/vamp"  # stale location from an earlier (broken) version of this script
     log "Writing runit service to $sv_dir/run"
     mkdir -p "$sv_dir"
     sed "s|__REPO_DIR__|$REPO_DIR|g" "$REPO_DIR/termux/service-run.template" > "$sv_dir/run"
@@ -55,14 +64,11 @@ install_termux() {
     log "Enabling and starting the vamp service"
     if command -v sv-enable >/dev/null 2>&1; then
         # termux-services was potentially just installed moments ago (above) —
-        # its runsvdir supervisor may not be up yet in this shell, which makes
-        # sv-enable/sv up fail with "unable to change to service directory".
-        # Same race the boot script already guards against; mirror it here.
-        local sv_service_dir="$PREFIX/var/service"
-        mkdir -p "$sv_service_dir"
-        if ! pgrep -f "runsvdir $sv_service_dir" >/dev/null 2>&1; then
+        # its runsvdir supervisor may not be up yet in this shell. The boot
+        # script already guards against this same race; mirror it here.
+        if ! pgrep -f "runsvdir $svdir" >/dev/null 2>&1; then
             log "runsvdir not running yet — starting it"
-            runsvdir "$sv_service_dir" >> "$HOME/.vamp/runsvdir.log" 2>&1 &
+            runsvdir "$svdir" >> "$HOME/.vamp/runsvdir.log" 2>&1 &
             sleep 2
         fi
         sv-enable vamp || warn "sv-enable failed — restart Termux (PATH refresh) and rerun install.sh"
