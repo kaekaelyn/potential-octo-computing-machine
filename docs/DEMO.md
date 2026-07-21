@@ -677,3 +677,97 @@ make test    # 337+ tests: gig lifecycle (state stamps, chase-unpaid
              # page
 make lint
 ```
+
+## M7 — Polish + phone ops
+
+Start the app:
+
+```sh
+make dev
+```
+
+### Notification status page
+
+Open `http://127.0.0.1:8485/notify`. On desktop (no `termux-notification` on
+`PATH`) it shows **termux-notification not found — logging only** — the
+CLAUDE.md portability fallback: every notification below still gets
+composed and logged to stderr/`~/.vamp/service.log`, it just doesn't reach
+an Android tray. On the phone, with Termux:API installed (see
+`docs/PHONE.md`), it shows **termux-notification found ✓**.
+
+### Morning digest, composed from live data
+
+The digest runs automatically at 8am, but tap **Send digest now** to see it
+immediately without waiting. It composes, from whatever's actually in the
+database right now:
+
+- new *paying* leads captured in the last 24h, with how many are already
+  **READY** (PLAN.md §5's requirement↔vault matching, reused as-is);
+- follow-ups due — M4's prospect cadence engine plus M6's gig
+  chase-unpaid reminders, combined into one count;
+- tonight's "going" scene events (M6's next-occurrence cadence engine,
+  filtered to "occurs today").
+
+Demo the "2 new paying leads (1 READY), 3 follow-ups due, [event] tonight"
+shape from PLAN.md §7 directly:
+
+```sh
+sqlite3 ~/.vamp/vamp.db "INSERT INTO leads (source_id, kind, dedupe_hash, url_hash, title, org, pay_kind, pay_min, state) VALUES (NULL, 'gig', 'demo-1', NULL, 'Solo piano, Friday', 'Vast', 'flat', 200, 'inbox');"
+```
+
+Tap **Send digest now** again — the new paying lead now shows up in the
+count. A second tap the same day reports **"Digest not sent: already sent
+today"** — the once-per-day guard (`vamp.notify.jobs`) that keeps the
+scheduled 8am job and a manual demo click from double-notifying.
+
+### Weekly Outreach Sprint notification
+
+Same idea, reusing M4's `outreach_sprint`/`sprint_headline` verbatim: tap
+**Send Outreach Sprint now** on `/notify` (or open
+`http://127.0.0.1:8485/prospects/sprint` to see the same data as a page).
+It's guarded once-per-ISO-week the same way the digest is guarded
+once-per-day.
+
+### Seasonal playbook activation reminders
+
+`http://127.0.0.1:8485/playbooks` already flags a playbook **active now**
+when the current month is in its `active_months`. M7 turns that into an
+actual reminder: open `http://127.0.0.1:8485/reminders` (or send the
+morning digest, which syncs the same thing as a side effect) — any
+playbook active this month gets a **"⟨Playbook⟩ is active this month"**
+row linking back to `/playbooks/<slug>`, created once per playbook per
+month (revisiting the page the same month never duplicates it).
+
+### Metrics page
+
+`http://127.0.0.1:8485/metrics` — pitches → responses → bookings by
+category (current prospect-pipeline stage: pitched = reached "contacted"
+or later, responded = reached "in conversation" or further, booked =
+booked/recurring), income by month (M6's income dashboard, summarized),
+and source conversion (leads captured per source vs. how many turned into
+an actual gig via `gigs.lead_id`) — "metrics show money, the only
+motivator that matters" (PLAN.md §13).
+
+### docs/PHONE.md hardening
+
+`docs/PHONE.md` now walks through the full device-hardening checklist in
+one place: F-Droid Termux + Termux:API + Termux:Boot, battery-optimization
+exemption, the Android 13+ notification permission, `termux-wake-lock`,
+verifying `termux-notification` end to end, and `vamp backup` to Android
+shared storage. This is the doc the M7 acceptance criterion means by "a
+fresh-phone install succeeds from docs alone."
+
+### Tests
+
+```sh
+make test    # 370+ tests: termux-notification adapter (found/missing/
+             # nonzero-exit/timeout, never raises), morning digest
+             # composition (paying-only, 24h lookback window, READY count,
+             # combined follow-up count, tonight's-events filter, headline
+             # formatting), send-once-per-day/week guards + force bypass,
+             # notification scheduler wiring (cron jobs, idempotent
+             # registration), /notify routes, playbook activation reminders
+             # (parsing, idempotency, one-per-month-per-playbook), and the
+             # metrics page (pipeline funnel, source conversion, route)
+make lint
+```

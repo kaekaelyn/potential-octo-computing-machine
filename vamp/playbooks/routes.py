@@ -9,6 +9,7 @@ from flask import Blueprint, abort, current_app, render_template
 from markupsafe import Markup
 
 from vamp import db as vamp_db
+from vamp.playbooks.activation import active_months_list
 from vamp.playbooks.render import render_markdown
 
 bp = Blueprint("playbooks", __name__, url_prefix="/playbooks")
@@ -34,17 +35,6 @@ def _conn():
     return vamp_db.get_connection(config.db_path)
 
 
-def _active_months(active_months: str | None) -> list[int]:
-    if not active_months:
-        return []
-    out = []
-    for part in active_months.split(","):
-        part = part.strip()
-        if part.isdigit():
-            out.append(int(part))
-    return out
-
-
 @bp.route("")
 def list_playbooks():
     conn = _conn()
@@ -62,7 +52,7 @@ def list_playbooks():
     this_month = datetime.now(UTC).month
     playbooks = []
     for row in rows:
-        months = _active_months(row["active_months"])
+        months = active_months_list(row["active_months"])
         playbooks.append(
             {
                 "slug": row["slug"],
@@ -94,7 +84,7 @@ def detail(slug: str):
         ).fetchall()
     finally:
         conn.close()
-    months = [_MONTH_NAMES[m] for m in _active_months(row["active_months"])]
+    months = [_MONTH_NAMES[m] for m in active_months_list(row["active_months"])]
     return render_template(
         "playbooks/detail.html",
         playbook=row,

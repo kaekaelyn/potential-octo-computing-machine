@@ -16,8 +16,13 @@ Runs entirely on an Android phone under [Termux](https://termux.dev/) —
 the phone is both server and client. No cloud, no accounts, no telemetry,
 no auto-sending anything, ever.
 
-Status: M0 (skeleton), M1 (capture + leads inbox), M2 (feeds + watchers),
-and M3 (requirements + vault + kit builder) complete. Daily-usable from
-M1 on — share a post to Vamp, work the inbox, run the patrol checklist;
-M3 adds READY/Missing badges, the unlock report, the kit builder, and
-EPK export on top.
+Status: M0–M7 complete — skeleton, capture + leads inbox, feeds + watchers,
+requirements + vault + kit builder, prospects engine + OKC seed data, the
+AI layer, money/scene/people, and notification + phone-ops polish. See
+`docs/DEMO.md` for a milestone-by-milestone walkthrough and `PLAN.md` §12
+for what each one covers. Daily-usable from M1 on — share a post to Vamp,
+work the inbox, run the patrol checklist; every milestone since adds more
+of the loop: READY/Missing badges and the kit builder (M3), the outbound
+prospects engine (M4), AI-assisted scoring and drafting (M5), gigs/income/
+scene/people (M6), and the morning digest + Outreach Sprint notifications,
+seasonal playbook reminders, and the metrics page (M7).

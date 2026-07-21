@@ -35,6 +35,8 @@ def create_app(config: Config | None = None, *, catchup_sync: bool = False) -> F
     from .gigs.routes import bp as gigs_bp
     from .kit.routes import bp as kit_bp
     from .leads.routes import bp as leads_bp
+    from .metrics.routes import bp as metrics_bp
+    from .notify.routes import bp as notify_bp
     from .patrol.routes import bp as patrol_bp
     from .people.routes import bp as people_bp
     from .playbooks.routes import bp as playbooks_bp
@@ -50,6 +52,8 @@ def create_app(config: Config | None = None, *, catchup_sync: bool = False) -> F
     app.register_blueprint(gigs_bp)
     app.register_blueprint(kit_bp)
     app.register_blueprint(leads_bp)
+    app.register_blueprint(metrics_bp)
+    app.register_blueprint(notify_bp)
     app.register_blueprint(patrol_bp)
     app.register_blueprint(people_bp)
     app.register_blueprint(playbooks_bp)

@@ -19,13 +19,19 @@ real device.
    Store build (which is unmaintained and can't self-update packages).
 2. Install **Termux:API** and **Termux:Boot**, also from F-Droid — same
    signing key family as Termux itself, required for `termux-*` commands
-   and boot-time autostart respectively.
+   (including `termux-notification`, the morning digest/Outreach Sprint's
+   delivery mechanism — PLAN.md §7/§9) and boot-time autostart respectively.
 3. Open Termux:Boot once after installing it so Android registers it as
    a boot-completed receiver.
 4. In Android Settings → Apps → Termux → Battery, exempt Termux from
    battery optimization ("Unrestricted" / "Don't optimize"). Without
    this, Android will kill the background service regardless of
    wake-locks or boot scripts.
+5. On Android 13+, the first time Termux:API tries to post a notification
+   it triggers the OS's runtime notification-permission prompt — grant it.
+   If you miss the prompt, grant it by hand: Android Settings → Apps →
+   Termux:API → Notifications → Allow. Without this, `termux-notification`
+   reports success but nothing ever appears in the tray.
 
 ## Install
 
@@ -81,6 +87,37 @@ To confirm the boot path survives a restart: reboot the phone, wait ~30
 seconds after unlock, then repeat the `sv status` / `curl` check above
 without opening Termux manually.
 
+## Notifications
+
+The morning digest (8am) and the Sunday Outreach Sprint (6pm) fire as real
+Android notifications via `termux-notification` (PLAN.md §7/§9/§12 M7).
+`install.sh` already installs the `termux-api` package (the CLI half); the
+**Termux:API app** from F-Droid (the Android half) is the one-time device
+setup step above, and the notification permission on Android 13+ is the
+other. Verify the whole path end to end:
+
+```sh
+termux-notification --title "Vamp" --content "test notification"
+```
+
+A notification should appear in the tray immediately. If it doesn't:
+
+- `command -v termux-notification` — empty means the `termux-api` package
+  isn't installed (`pkg install -y termux-api`).
+- Confirm the Termux:API **app** (not just the package) is installed from
+  F-Droid — the CLI shells out to it over a Unix socket; the package alone
+  does nothing.
+- Check the notification permission (Android 13+): Settings → Apps →
+  Termux:API → Notifications → Allow.
+
+Once that works, use `/notify` in the app to check status and fire either
+notification on demand (`Send digest now` / `Send Outreach Sprint now`) —
+useful for confirming the whole pipeline (live data → composed text →
+`termux-notification`) without waiting for the scheduled hour. Without
+Termux:API (desktop, or before it's installed on the phone), the same
+message is logged to `~/.vamp/service.log` instead of failing — CLAUDE.md's
+portability rule that core behavior always has a non-Termux fallback.
+
 ## Troubleshooting
 
 - **`sv-enable: command not found` right after install** — the
@@ -100,6 +137,12 @@ without opening Termux manually.
   realities problem PLAN.md §2 describes; `termux-wake-lock` plus
   catch-up-on-open (from M2 onward) are the mitigations. Opening the app
   self-heals even if the service died.
+- **Digest/Outreach Sprint never arrives** — see "Notifications" above:
+  `command -v termux-notification`, confirm the Termux:API *app* (not just
+  the `termux-api` package) is installed, and check the Android 13+
+  notification permission. `/notify` in the app shows whether Vamp thinks
+  it's found `termux-notification` at all, and its "send now" buttons let
+  you test the pipeline without waiting for 8am/Sunday 6pm.
 
 ## Backups
 
