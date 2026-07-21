@@ -1,0 +1,9 @@
+# Dev-only tooling. Runs in CI (x86 runners) and desktop dev sessions —
+# never on the phone — so, unlike requirements.txt, compiled packages
+# (ruff ships a Rust binary) are fine here. See CLAUDE.md / docs/EXECUTION.md.
+-r requirements.txt
+iniconfig==2.3.0
+packaging==26.2
+pluggy==1.6.0
+pytest==9.1.1
+ruff==0.15.22
